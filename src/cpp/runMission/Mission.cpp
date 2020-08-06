@@ -69,32 +69,6 @@ namespace tomcat {
         this->client_pool = make_shared<ClientPool>();
         if (!this->multiplayer) {
             this->client_pool->add(ClientInfo("127.0.0.1", this->port_number));
-<<<<<<< HEAD:src/cpp/Mission.cpp
-=======
-        }
-        else {
-            string multiplayer_config_path =
-                format("{}/conf/multiplayer_config.json", getenv("TOMCAT"));
-            ifstream clients_json(multiplayer_config_path);
-            json clients_info = json::parse(clients_json);
-            string server_ip_address =
-                clients_info["server"]["address"].get<string>();
-            int server_port = clients_info["server"]["port"].get<int>();
-            this->client_pool->add(ClientInfo(server_ip_address, server_port));
-            json client_object = clients_info["clients"];
-            cout << "Number of clients to be connected: "
-                 << client_object.size() << endl;
-            string client_ip_address;
-            int client_port;
-
-            for (auto it = client_object.begin(); it != client_object.end();
-                 it++) {
-                client_ip_address = it.value()["address"].get<string>();
-                client_port = it.value()["port"].get<int>();
-                this->client_pool->add(
-                    ClientInfo(client_ip_address, client_port));
-            }
->>>>>>> master:src/cpp/runMission/Mission.cpp
         }
         else{
             string multiplayer_config_path =
@@ -217,12 +191,7 @@ namespace tomcat {
                 agent_name = "tomcat";
             }
             else {
-<<<<<<< HEAD:src/cpp/Mission.cpp
-                agent_name =
-                    client->ip_address;
-=======
                 agent_name = client->ip_address;
->>>>>>> master:src/cpp/runMission/Mission.cpp
             }
             // For USAR_SINGLEPLAYER mission: <Placement x="-2165" y="52"
             // z="175"/>
