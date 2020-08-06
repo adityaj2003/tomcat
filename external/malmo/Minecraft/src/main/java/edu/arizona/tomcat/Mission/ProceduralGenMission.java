@@ -4,14 +4,13 @@ import com.microsoft.Malmo.Schemas.PosAndDirection;
 import edu.arizona.tomcat.Mission.Goal.MissionGoal;
 import edu.arizona.tomcat.Mission.gui.SelfReportContent;
 import edu.arizona.tomcat.Utils.WorldReader;
+import java.math.BigDecimal;
+import java.util.Map;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-
-import java.math.BigDecimal;
-import java.util.Map;
 
 public class ProceduralGenMission extends Mission {
 
@@ -30,9 +29,11 @@ public class ProceduralGenMission extends Mission {
     }
 
     /**
-     * This method uses the blueprint to generate the structures for the world. Structures includes the AABB and individual blocks in the blueprint.
+     * This grabs the TSV blueprint from the procedural.tsv file and uses a
+     * WorldReader object to parse it. It then uses the resulting hashmap to
+     * place all the blocks at the right places.
      *
-     * @param world - The world in which structures are to be generated
+     * @param world The world in whcih the blocks are to be placed.
      */
     private void buildStructures(World world) {
         if (this.shouldBuild == true) {
@@ -41,16 +42,15 @@ public class ProceduralGenMission extends Mission {
             Map<BlockPos, IBlockState> worldMap = worldReader.getMap();
 
             // Place blocks
-            for(Map.Entry<BlockPos, IBlockState> entry : worldMap.entrySet()){
+            for (Map.Entry<BlockPos, IBlockState> entry : worldMap.entrySet()) {
                 world.setBlockState(entry.getKey(), entry.getValue());
             }
 
             this.shouldBuild = false;
-
-        } else {
+        }
+        else {
             return;
         }
-
     }
 
     @Override
@@ -62,7 +62,6 @@ public class ProceduralGenMission extends Mission {
     public void init(World world) {
         super.init(world);
     }
-
 
     @Override
     protected void beforePhaseTrasition() {

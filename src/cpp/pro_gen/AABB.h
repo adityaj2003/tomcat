@@ -6,7 +6,6 @@
 
 #include "Block.h"
 #include <random>
-#include <string>
 #include <vector>
 
 /**
@@ -23,7 +22,7 @@ class AABB {
     Pos bottomRight;
     bool isHollow;
     bool hasRoof;
-    std::vector<Block> blockList;
+    std::vector<Block*> blockList;
 
   public:
     /**
@@ -66,9 +65,9 @@ class AABB {
     /**
      * @brief Get the block list specific to this AABB
      *
-     * @return vector<Block>* The reference to the block list
+     * @return vector<Block*>& The reference to the block list
      */
-    std::vector<Block>* getBlockList();
+    std::vector<Block*>& getBlockList();
 
     /**
      * @brief Get the midpoint X value calculated between
@@ -110,11 +109,11 @@ class AABB {
      * Defaults to 1
      * @return Pos
      */
-    Pos getRandomPosAtBase(std::mt19937_64* gen,
-                           int offsetPosX = 1,
-                           int offsetNegX = 1,
-                           int offsetPosZ = 1,
-                           int offsetNegZ = 1);
+    Pos virtual getRandomPosAtBase(std::mt19937_64& gen,
+                                   int offsetPosX = 1,
+                                   int offsetNegX = 1,
+                                   int offsetPosZ = 1,
+                                   int offsetNegZ = 1);
 
     /**
      * @brief Get a list of the positions of the edge midpoints for this AABB.
@@ -124,30 +123,30 @@ class AABB {
      * @return vector<Pos> The list of coordinates as: top, right, bottom and
      * left edge midpoints.
      */
-    std::vector<Pos> getEdgeMidpointAtBase();
+    std::vector<Pos> virtual getEdgeMidpointAtBase();
 
     /**
      * @brief Set the top left coordinate of the AABB
      *
-     * @param topLeft Pointer to the pos object top left is to be set to
+     * @param topLeft Pos object top left is to be set to
      */
-    void setTopLeft(Pos* topLeft);
+    void setTopLeft(Pos& topLeft);
 
     /**
      * @brief Set the bottom right coordinate of the AABB
      *
-     * @param bottomRight Pointer to the pos object bottom right is to be set to
+     * @param bottomRight Pos object bottom right is to be set to
      */
-    void setBottomRight(Pos* bottomRight);
+    void setBottomRight(Pos& bottomRight);
 
     /**
      * @brief Add a specific block for this AABB to keep track of. Ideally this
      * should be related to the AABB. No checks are implicitly performed within
      * this method.
      *
-     * @param block Pointer to the block to be added
+     * @param block Block to be added
      */
-    void addBlock(Block* block);
+    void addBlock(Block& block);
 
     /**
      * @brief Checks to see if two AABBs overlapp on any of the axes
@@ -156,7 +155,7 @@ class AABB {
      * @return true When the AABBs do overlap
      * @return false When the AABBs don't overlap
      */
-    bool isOverlapping(AABB* other);
+    bool virtual isOverlapping(AABB& other);
 
     /**
      * @brief Generate a box made of s specific material inside the AABB with
@@ -177,14 +176,14 @@ class AABB {
      * Defaults to 0
      * @param type The semantic name to give the block. Defaults to "normal".
      */
-    void generateBox(std::string material,
-                     int offsetPosX = 0,
-                     int offsetNegX = 0,
-                     int offsetPosY = 0,
-                     int offsetNegY = 0,
-                     int offsetPosZ = 0,
-                     int offsetNegZ = 0,
-                     std::string type = "normal");
+    void virtual generateBox(std::string material,
+                             int offsetPosX = 0,
+                             int offsetNegX = 0,
+                             int offsetPosY = 0,
+                             int offsetNegY = 0,
+                             int offsetPosZ = 0,
+                             int offsetNegZ = 0,
+                             std::string type = "normal");
 
     /**
      * @brief Add n random blocks of the given type and material inside the AABB
@@ -208,16 +207,24 @@ class AABB {
      * @param type The semantic name to give this block. Defaults to "normal".
      */
 
-    void addRandomBlocks(int n,
-                         std::string material,
-                         std::mt19937_64* gen,
-                         int offsetPosX = 0,
-                         int offsetNegX = 0,
-                         int offsetPosY = 0,
-                         int offsetNegY = 0,
-                         int offsetPosZ = 0,
-                         int offsetNegZ = 0,
-                         std::string type = "normal");
+    void virtual addRandomBlocks(int n,
+                                 std::string material,
+                                 std::mt19937_64& gen,
+                                 int offsetPosX = 0,
+                                 int offsetNegX = 0,
+                                 int offsetPosY = 0,
+                                 int offsetNegY = 0,
+                                 int offsetPosZ = 0,
+                                 int offsetNegZ = 0,
+                                 std::string type = "normal");
+
+    /**
+     * @brief Generate all 4 doors for an AABB. Door blocks are added to the
+     * AABB object.
+     *
+     * @param aabb The AABB for which doors are to be generated.
+     */
+    void virtual generateAllDoorsInAABB();
 
     /**
      * @brief Gets a string representation of the various
@@ -225,7 +232,7 @@ class AABB {
      *
      * @return string The TSV representation
      */
-    std::string toTSV();
+    std::string virtual toTSV();
 
     /**
      * @brief Construct a new AABB object
@@ -246,13 +253,13 @@ class AABB {
     AABB(int id,
          std::string type,
          std::string material,
-         Pos* topLeft,
-         Pos* bottomRight,
+         Pos& topLeft,
+         Pos& bottomRight,
          bool isHollow = true,
          bool hasRoof = false);
 
     /**
      * @brief Destroy the AABB object
      */
-    ~AABB();
+    virtual ~AABB();
 };
