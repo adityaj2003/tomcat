@@ -72,12 +72,6 @@ namespace tomcat {
             this->client_pool->add(ClientInfo("127.0.0.1", this->port_number));
         }
         else{
-
-
-
-
-
-
             string multiplayer_config_path =
                 format("{}/conf/multiplayer_config.json", getenv("TOMCAT"));
             std::ifstream clients_json(multiplayer_config_path);
@@ -89,7 +83,7 @@ namespace tomcat {
             std::cout << "Number of clients to be connected: " << client_object.size() << std::endl;
             string client_ip_address;
             int client_port;
-            
+
             for (auto it = client_object.begin(); it != client_object.end(); it++)
                 {
                     client_ip_address = it.value()["address"].get<std::string>();
@@ -356,12 +350,16 @@ namespace tomcat {
                                                mission_has_begun.end(),
                                                [](bool v) { return v; });
             if (mission_has_begun_for_all) {
+                print(stderr, "Timed out waiting for mission to begin. Bailing.");
                 mosquitto_lib_init();
                 struct mosquitto *mosq = NULL;
-                mosq = mosquitto_new(NULL,true,NULL);
+                mosq = mosquitto_new(0,true,NULL);
+                mosquitto_connect(mosq,"192.168.1.138",1883,60);
                 mosquitto_publish(mosq,NULL,"recording_start",3,"yes",0,false);
+                mosquitto_lib_cleanup();
             }
         }
+
 
         if (elapsed_time_in_seconds >= max_seconds_to_start) {
             print(stderr, "Timed out waiting for mission to begin. Bailing.");
@@ -369,6 +367,7 @@ namespace tomcat {
                 "Timed out waiting for mission to begin.",
                 TomcatMissionException::ERROR_STARTING_MISSION);
         }
+
     }
 
     void Mission::observe() {
