@@ -4,6 +4,12 @@ cmake_minimum_required(VERSION 3.12)
 file(GLOB tomcat_headers CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/*.h)
 file(GLOB tomcat_sources CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)
 
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH}
+        "${CMAKE_SOURCE_DIR}/../../../tools/cmake")
+find_package(Mosquitto 1.5 REQUIRED)
+message("Mosquitto header file found: ${Mosquitto_INCLUDE_DIRS}/mosquitto.h")
+message("Mosquitto library found: ${Mosquitto_LIBRARIES}")
+
 find_package(nlohmann_json REQUIRED)
 find_package(FMT REQUIRED)
 
@@ -11,12 +17,16 @@ add_executable(
   runMission ${tomcat_sources}
 )
 
+target_include_directories(runMission
+        PRIVATE ${Mosquitto_INCLUDE_DIRS})
+#target_link_libraries(runMission PRIVATE ${Mosquitto_LIBRARIES})
 target_include_directories(runMission PUBLIC ${Boost_INCLUDE_DIRS})
 
 target_link_libraries(
   runMission
   Malmo
   ${Boost_LIBRARIES}
+        ${Mosquitto_LIBRARIES}
   "z"
   fmt::fmt
 )

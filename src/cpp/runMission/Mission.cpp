@@ -14,6 +14,7 @@
 #include <iostream>
 #include <fstream>
 #include <dirent.h>
+#include <mosquitto.h>
 
 using namespace malmo;
 using namespace std;
@@ -71,6 +72,12 @@ namespace tomcat {
             this->client_pool->add(ClientInfo("127.0.0.1", this->port_number));
         }
         else{
+
+
+
+
+
+
             string multiplayer_config_path =
                 format("{}/conf/multiplayer_config.json", getenv("TOMCAT"));
             std::ifstream clients_json(multiplayer_config_path);
@@ -348,6 +355,12 @@ namespace tomcat {
             mission_has_begun_for_all = all_of(mission_has_begun.begin(),
                                                mission_has_begun.end(),
                                                [](bool v) { return v; });
+            if (mission_has_begun_for_all) {
+                mosquitto_lib_init();
+                struct mosquitto *mosq = NULL;
+                mosq = mosquitto_new(NULL,true,NULL);
+                mosquitto_publish(mosq,NULL,"recording_start",3,"yes",0,false);
+            }
         }
 
         if (elapsed_time_in_seconds >= max_seconds_to_start) {
