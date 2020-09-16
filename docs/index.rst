@@ -79,7 +79,8 @@ The Github repository for ToMCAT can be found `here <https://github.com/ml4ai/to
 
 **Presentations**
 
-`Site Visit, 9-25-2019 <http://vanga.sista.arizona.edu/tomcat/presentations/site_visit_09_25_2019.pdf>`_
+`Cognitive Science Colloquium, 2020-09-04 <http://vanga.sista.arizona.edu/tomcat/presentations/cog_sci_colloq_adarsh.pdf>`_
+`Site Visit, 2019-09-25 <http://vanga.sista.arizona.edu/tomcat/presentations/site_visit_09_25_2019.pdf>`_
 
 
 
