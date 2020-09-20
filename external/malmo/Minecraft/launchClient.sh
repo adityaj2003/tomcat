@@ -199,7 +199,7 @@ fi
 start_something() {
   echo "receiving recording starting signal..."
 mosquitto &
-recording_start=$(mosquitto_sub -t recording_start -h "192.168.1.138" -C 1 &)
+recording_start=$(mosquitto_sub -t recording_start -C 1 &)
 while :
       echo "i am here"
 do
@@ -220,6 +220,21 @@ while
     ./gradlew runClient
     [ $replaceable -gt 0 ]
 do :; done
+kill_av_recording_and_mosquitto_sub() {
+    echo "Cleaning up ffmpeg/pacat and mosquitto_sub processes."
+
+    if (( ENABLE_FFMPEG )); then
+        pkill ffmpeg
+        if [[ $ENABLE_SYSTEM_AUDIO_RECORDING -eq 1 &&  $OSTYPE == linux-gnu ]]; then
+            pkill pacat
+        fi
+    fi
+
+    # Kill any remaining mosquitto, mosquitto_sub, and mosquitto_pub processes
+    pkill mosquitto_sub
+}
+
+kill_av_recording_and_mosquitto_sub
 
 
 

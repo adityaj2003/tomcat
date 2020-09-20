@@ -354,7 +354,7 @@ namespace tomcat {
                 mosquitto_lib_init();
                 struct mosquitto *mosq = NULL;
                 mosq = mosquitto_new(0,true,NULL);
-                mosquitto_connect(mosq,"192.168.1.138",1883,60);
+                mosquitto_connect(mosq,"localhost",1883,60);
                 mosquitto_publish(mosq,NULL,"recording_start",3,"yes",0,false);
                 mosquitto_lib_cleanup();
             }
