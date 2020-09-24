@@ -141,7 +141,10 @@ detect_os() {
 
     elif [[ "$OSTYPE" == "linux-gnu" ]]; then
         echo "Linux detected."
-        if [[ ! -f /etc/os-release ]]; then
+        if [ ! -z "$(cat /etc/redhat-release|grep CentOS)" ]; then
+            echo "CentOS detected."
+            
+        elif [[ ! -f /etc/os-release ]]; then
             echo "The file /etc/os-release could not be found. This means that"
             " we cannot determine the Linux distro and version. Exiting now."
             exit 1
