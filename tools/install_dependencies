@@ -169,9 +169,12 @@ __install_dependencies() {
     elif [ -x "$(command -v apt-get)" ]; then
         __install_dependencies_using_apt
 
+    elif [ ! -z "$(cat /etc/redhat-release|grep CentOS)" ]; then
+            echo "CentOS detected, please install dependencies manully. Automated" \
+                 "installation could be added later"
     else
-        echo "This is not a macOS and not a Debian Linux distribution (at least"
-        echo "apt-get is not around). We cannot proceed with the automated"
+        echo "This is not a macOS and not a Debian/CentOS Linux distribution (at least"
+        echo "apt-get/yum is not around). We cannot proceed with the automated"
         echo "installation. Please consult docs/installation.md for the required"
         echo "dependencies."
         exit 1
