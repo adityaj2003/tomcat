@@ -78,4 +78,15 @@ the server side to start your mission:
 
 The `--mission` flag specifies the mission to launch and the `--multiplayer`
 flag will treat the mission as a multiplayer one.
+
+
+##Updates on  2020/10/19:
+
+When running client on laplace, we will use the X virtual framebuffer (before this, make sure you have a X server on your local), which enables us to run Minecraft without a display. Also, since there is no windows needed, we must skip setting a full screen, otherwise errors would occur. Use the following commands to run client:
+
+Xvfb :1 -screen 0 1400x900x24 &
+export DISPLAY=:1.0
+export TOMCAT_FULL_SCREEN=${TOMCAT_FULL_SCREEN:0}
+./external/malmo/Minecraft/launchClient.sh -port 10000
+
 >>>>>>> master
