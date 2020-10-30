@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -u
+
 
 # Set the TOMCAT environment variable, assuming that the directory structure
 # mirrors that of the git repository.

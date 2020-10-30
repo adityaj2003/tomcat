@@ -201,7 +201,6 @@ start_something() {
 mosquitto &
 recording_start=$(mosquitto_sub -t recording_start -C 1 &)
 while :
-      echo "i am here"
 do
     if [ $recording_start ];
     then

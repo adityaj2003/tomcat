@@ -1,5 +1,5 @@
 #!/bin/bash
-set -u
+
 
 # =============================================================================
 
@@ -57,12 +57,14 @@ if [[ $? -ne 0 ]]; then exit 1; fi
 
 
 start_av_recording() {
+    RECORDING_DIR="$1"
+
     ffmpeg\
     -f ${FFMPEG_FMT_WEBCAM}\
     ${FRAMERATE_OPTION:-}\
     -i ${FFMPEG_INPUT_DEVICE_WEBCAM}\
     -r 30\
-    "${MISSION_OUTPUT_DIR}"/webcam_video.mpg\
+    "${RECORDING_DIR}"/webcam_video.mpg\
     &> ${TOMCAT_TMP_DIR}/ffmpeg_webcam_mission_"$CURRENT_MISSION".log &
     pid_webcam_recording=$!
     echo "Recording video of player's face using webcam. Process ID = ${pid_webcam_recording}"
@@ -71,7 +73,7 @@ start_av_recording() {
     -nostdin\
     -f ${FFMPEG_FMT_MICROPHONE}\
     -i ${FFMPEG_INPUT_DEVICE_MICROPHONE}\
-    "${MISSION_OUTPUT_DIR}"/player_audio.wav\
+    "${RECORDING_DIR}"/player_audio.wav\
     &> ${TOMCAT_TMP_DIR}/ffmpeg_microphone_mission_"$CURRENT_MISSION".log &
     pid_microphone_recording=$!
 
@@ -237,7 +239,7 @@ do_mission() {
     fi
 
     if (( ENABLE_FFMPEG )); then
-        start_av_recording
+        start_av_recording $MISSION_OUTPUT_DIR
     fi
 
     # Publish the Malmo observation messages to the message bus on the

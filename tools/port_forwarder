@@ -19,7 +19,7 @@ args = parser.parse_args()
 server = "laplace"
 
 if args.cmd == "start":
-    for port in [1883, 10000,10001]:
+    for port in [1883,10001,10000]:
         # TODO Implement error handling, including checking if a port is
         # already forwarded.
         sp.run(
