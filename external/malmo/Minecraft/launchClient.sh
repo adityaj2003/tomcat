@@ -5,130 +5,11 @@ set -u
 
 # Set the TOMCAT environment variable, assuming that the directory structure
 # mirrors that of the git repository.
-TOMCAT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../../" >/dev/null 2>&1 && pwd)"
+TOMCAT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../" >/dev/null 2>&1 && pwd)"
 export TOMCAT
-echo $TOMCAT
-source "$TOMCAT"/tools/configuration_helpers
+source "$TOMCAT"/tools/recording_helper
 
-
-configure_session
-
-# If the above fails, we do not get here.
-
-# Start mosquitto message broker if it is not already running.
-if [[ ! $(pgrep -l mosquitto | head -n1 | cut -d' ' -f2) == mosquitto ]]; then
-    echo "The mosquitto message broker does not seem to be running, so we "\
-         "will start it now."
-    if [[ $OSTYPE == "darwin"* && $MACPORTS_FOUND -eq 1 ]]; then
-        # If we get to this branch, we assume that MacPorts is not installed,
-        # and the package manager is Homebrew. A Homebrew install of mosquitto
-        # doesn't allow us to start mosquitto by just typing 'mosquitto' -
-        # instead, we would have to do 'brew services start mosquitto'. To get
-        # around the need to do this and just invoke the mosquitto executable
-        # in the background, we give the full path to the mosquitto executable
-        # under the Homebrew prefix.
-        MOSQUITTO=$(brew --prefix)/sbin/mosquitto
-    else
-        MOSQUITTO=mosquitto
-    fi
-
-    "$MOSQUITTO" &> ${TOMCAT_TMP_DIR}/mosquitto.log &
-fi
-
-# On macOS, uuidgen produces uppercase UUIDS, so we pipe the output
-# through 'tr' to get uniform behavior on macOS and Linux.
-SESSION_UUID=$(uuidgen | tr '[:upper:]' '[:lower:]')
-if [[ $? -ne 0 ]]; then exit 1; fi
-
-# Creating an output directory for this session.
-SESSION_OUTPUT_DIR="${TOMCAT}"/data/participant_data/"$SESSION_UUID"
-mkdir -p "${SESSION_OUTPUT_DIR}"
-
-SPEC_VERSION=$("$TOMCAT"/build/bin/getSpecVersion --spec "$TOMCAT"/docs/spec.yml)
-
-# Generate metadata file for the session
-"$TOMCAT"/tools/generate_session_metadata\
-    "$SESSION_UUID"\
-    "$PLAYER_ID"\
-    "$TIME_LIMIT"\
-    "$DIFFICULTY"\
-    "$SPEC_VERSION" > "$SESSION_OUTPUT_DIR"/metadata.json
-
-if [[ $? -ne 0 ]]; then exit 1; fi
-export CURRENT_MISSION="1"
-    echo " "
-    echo "Running mission ${CURRENT_MISSION} in ${TOMCAT}."
-    echo " "
-    mission_log="$TOMCAT_TMP_DIR"/mission_"$CURRENT_MISSION".log
-    export MISSION_OUTPUT_DIR="${SESSION_OUTPUT_DIR}"/mission_"$CURRENT_MISSION"
-    mkdir -p "$MISSION_OUTPUT_DIR"
-    messages="$MISSION_OUTPUT_DIR"/messages.txt
-
-start_av_recording() {
-    ffmpeg\
-    -f ${FFMPEG_FMT_WEBCAM}\
-    ${FRAMERATE_OPTION:-}\
-    -i ${FFMPEG_INPUT_DEVICE_WEBCAM}\
-    -r 30\
-    "${MISSION_OUTPUT_DIR}"/webcam_video.mpg\
-    &> ${TOMCAT_TMP_DIR}/ffmpeg_webcam_mission_"$CURRENT_MISSION".log &
-    pid_webcam_recording=$!
-    echo "Recording video of player's face using webcam. Process ID = ${pid_webcam_recording}"
-
-    ffmpeg\
-    -nostdin\
-    -f ${FFMPEG_FMT_MICROPHONE}\
-    -i ${FFMPEG_INPUT_DEVICE_MICROPHONE}\
-    "${MISSION_OUTPUT_DIR}"/player_audio.wav\
-    &> ${TOMCAT_TMP_DIR}/ffmpeg_microphone_mission_"$CURRENT_MISSION".log &
-    pid_microphone_recording=$!
-
-    if (( ENABLE_SYSTEM_AUDIO_RECORDING )); then
-        if [[ $OSTYPE == linux-gnu ]]; then
-            echo "Recording system audio for Linux."
-            # For Linux system audio recording, we will use pacat.
-            # We need to extract the alsa output monitor.
-            export ALSA_OUTPUT_MONITOR=$(pacmd list-sources | \
-                awk '/name:/ && /monitor/ {print $2 }'|sed 's/[<,>]//g')
-
-            # Calling pacat command.
-            pacat --record --file-format=wav -d ${ALSA_OUTPUT_MONITOR} \
-            > "${MISSION_OUTPUT_DIR}"/system_audio.wav &
-            pid_system_audio_recording=$!
-        else
-            echo "Recording system audio."
-            ffmpeg\
-            -nostdin\
-            -f ${FFMPEG_FMT_SYSTEM_AUDIO}\
-            -i ${FFMPEG_INPUT_DEVICE_SYSTEM_AUDIO}\
-            "${MISSION_OUTPUT_DIR}"/system_audio.wav\
-            &> "$TOMCAT_TMP_DIR"/system_audio_recording_mission_"$CURRENT_MISSION".log &
-            pid_system_audio_recording=$!
-        fi
-    fi
-    echo "Recording player audio using microphone. Process ID = ${pid_microphone_recording}"
-
-    # Recording game screen.
-    screen_video="${MISSION_OUTPUT_DIR}"/screen_video.mpg
-
-    # On macOS, the -i option must be given before the -s option, and on Ubuntu
-    # it's the other way around.
-    if [[ "$OSTYPE"  == "darwin"* ]]; then
-        ffmpeg -nostdin -f ${FFMPEG_FMT_SCREEN_CAPTURE}\
-        -i ${FFMPEG_INPUT_DEVICE_SCREEN_CAPTURE}\
-        -s $SCREEN_DIMENSIONS\
-        "$screen_video" &> "$TOMCAT_TMP_DIR"/screen_video_recording_mission_"$CURRENT_MISSION".log &
-        pid_screen_recording=$!
-    else
-        ffmpeg -nostdin -f ${FFMPEG_FMT_SCREEN_CAPTURE}\
-        -s $SCREEN_DIMENSIONS\
-        -i ${FFMPEG_INPUT_DEVICE_SCREEN_CAPTURE}\
-        "$screen_video" &> "$TOMCAT_TMP_DIR"/screen_video_recording_mission_"$CURRENT_MISSION".log &
-        pid_screen_recording=$!
-    fi
-    echo "Recording player's screen. Process ID = ${pid_screen_recording}"
-}
-
+start_mosquitto
 
 # run from the script directory
 cd "$(dirname "$0")"
@@ -151,7 +32,7 @@ do
     esac
     shift
 done
-  
+
 if ! [[ $port =~ ^-?[0-9]+$ ]]; then
     echo "Port value should be numeric"
     exit 1
@@ -196,44 +77,57 @@ if [ $env -gt 0 ]; then
 " >> run/config/malmomodCLIENT.cfg
 fi
 
-start_something() {
-  echo "receiving recording starting signal..."
-mosquitto &
-recording_start=$(mosquitto_sub -t recording_start -C 1 &)
-while :
-do
-    if [ $recording_start ];
-    then
-      echo "start recording now..."
-      start_av_recording
-      break
+session_cleanup() {
+    kill_av_recording_and_mosquitto_sub
+    cleanup_status=0
+    if [[ ${RECYCLE_MINECRAFT} -lt 2 ]]; then
+        if ! "${TOMCAT}/tools/kill_minecraft"; then
+            echo "Failed to kill Minecraft."
+            exit 1
+        fi
     fi
-done
+
+    if [[ $ENABLE_SYSTEM_AUDIO_RECORDING -eq 1 && $CI -eq 0 && "$OSTYPE"  == "darwin"* ]]; then
+        # Switching the audio output from the multi-output device to the
+        # built-in output.
+        if ! SwitchAudioSource -s "$ORIGINAL_OUTPUT_DEVICE"; then
+            echo " "
+            echo "Failed to switch audio output device back to what it was"\
+                "before run_session (${ORIGINAL_OUTPUT_DEVICE})."
+            echo " "
+            exit 1
+        fi
+    fi
+}
+
+start_recording() {
+    echo "Waiting for recording starting signal"
+    echo "Once the signal is received"\
+         "all clients will start recording at the same time."
+    recording_start=$(mosquitto_sub -t recording_start -C 1 &)
+    while :
+    do
+        if [ $recording_start ];
+        then
+            echo "start recording now..."
+            start_av_recording
+            break
+        fi
+    done
 }
 # Finally we can launch the Mod, which will load the config file
 
-start_something &
+
+start_recording &
 while
     ./gradlew setupDecompWorkspace
     ./gradlew build
     ./gradlew runClient
     [ $replaceable -gt 0 ]
 do :; done
-kill_av_recording_and_mosquitto_sub() {
-    echo "Cleaning up ffmpeg/pacat and mosquitto_sub processes."
-
-    if (( ENABLE_FFMPEG )); then
-        pkill ffmpeg
-        if [[ $ENABLE_SYSTEM_AUDIO_RECORDING -eq 1 &&  $OSTYPE == linux-gnu ]]; then
-            pkill pacat
-        fi
-    fi
-
-    # Kill any remaining mosquitto, mosquitto_sub, and mosquitto_pub processes
-    pkill mosquitto_sub
-}
 
 kill_av_recording_and_mosquitto_sub
+session_cleanup
 
 
 
