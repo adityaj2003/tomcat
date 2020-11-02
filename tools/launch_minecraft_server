@@ -6,8 +6,8 @@ export TOMCAT
 source "$TOMCAT"/tools/recording_helper
 
 start_mosquitto
-Xvfb:1 -screen 0 1400x900x24 &
+Xvfb :1 -screen 0 1400x900x24 &
 export DISPLAY=:1.0
-export TOMCAT_FULL_SCREEN=${TOMCAT_FULL_SCREEN:0}
+export TOMCAT_FULL_SCREEN=0
 
 ./check_minecraft -port 10000
