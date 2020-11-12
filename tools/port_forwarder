@@ -42,8 +42,8 @@ parser.add_argument(
     help='Host, either a hostname or IP address'
 )
 parser.add_argument(
-    '-p', type=int, required=True,
-    help='Port number to forward'
+    '-p', type=int, nargs='+', required=True,
+    help='Port numbers to forward'
 )
 parser.add_argument(
     '-a', type=str, required=True, choices=(START, STOP, STATUS),
@@ -51,15 +51,13 @@ parser.add_argument(
 )
 
 
-
-
-
 # Compose an ssh command that will start forward the port to the host
 args = parser.parse_args()
-port = str(args.p)
+port = str(args.p[0])
 host = args.d
 action = args.a
 ssh_cmd = 'ssh -o ConnectTimeout=7 -NfL ' + port + ':localhost:' + port + ' ' + host
+
 
 
 # Find the pid(s) for any processes running our ssh command.  If any exist,
