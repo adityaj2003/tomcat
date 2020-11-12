@@ -9,11 +9,11 @@
 #
 # The following actions are supported:
 #
-# start    Begin forwarding the port by starting a background ssh process
+# start    Start forwarding the port
 #
-# stop     Stop the port by killing the forwarding ssh process.
+# stop     Stop forwarding the port
 #
-# status   Report whether the port is currently in use.
+# status   Report the status of the port
 #
 #
 # Required arguments:
@@ -29,11 +29,10 @@ import argparse
 import os
 import sys
 
-# define actions
-START = 'start'
-STOP = 'stop'
+# define some handy globals
+START  = 'start'
+STOP   = 'stop'
 STATUS = 'status'
-
 parser = argparse.ArgumentParser()
 
 # add args
