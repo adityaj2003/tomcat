@@ -52,9 +52,17 @@ parser.add_argument(
 
 # Compose an ssh command that will start forward the port to the host
 args = parser.parse_args()
-port = str(args.p[0])
+port = str(args.p[0])  # Just use 1 during debugging
 host = args.d
 action = args.a
+
+# Readback the args during debugging
+print("Host: " + host)
+print("Port: " + port)
+print("Action: " + action)
+
+
+
 ssh_cmd = 'ssh -o ConnectTimeout=7 -NfL ' + port + ':localhost:' + port + ' ' + host
 
 
