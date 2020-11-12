@@ -6,17 +6,8 @@
 # Single Port Forwarder.  This script will manage forwarding one
 # port from this machine to a destination machine, by starting an ssh
 # process that will maintain the port forwarding in the background.
-# The command used to start the forwarding is later used to check for a
-# running process.
 #
-# Required arguments:
-#
-# -d       Destination, either a hostname or IPV4/IPV6 address
-#
-# -p       Port to be forwarded to the destination machine
-#
-#
-# actions (choose one):
+# The following actions are supported:
 #
 # start    Begin forwarding the port by starting a background ssh process
 #
@@ -24,10 +15,24 @@
 #
 # status   Report whether the port is currently in use.
 #
+#
+# Required arguments:
+#
+# -d Destination, either a hostname or IPV4/IPV6 address
+#
+# -p Port to be forwarded to the destination machine
+#
+# -a 'start', 'stop', or 'status'
+#
 
 import argparse
 import os
 import sys
+
+# define actions
+START = 'start'
+STOP = 'stop'
+STATUS = 'status'
 
 parser = argparse.ArgumentParser()
 
@@ -37,20 +42,23 @@ parser.add_argument(
     help='Host, either a hostname or IP address'
 )
 parser.add_argument(
-    '-p', type=int, required=True, help='Port number to forward'
+    '-p', type=int, required=True,
+    help='Port number to forward'
+)
+parser.add_argument(
+    '-a', type=str, required=True, choices=(START, STOP, STATUS),
+    help='Action for each port: ' + START +', ' + STOP + ', or ' + STATUS
 )
 
-# add actions
-START = 'start'    # Start forwarding this port
-STOP = 'stop'      # Stop forwarding this port
-STATUS = 'status'  # Return the port status
-parser.add_argument('action', choices=(START, STOP, STATUS))
+
+
 
 
 # Compose an ssh command that will start forward the port to the host
 args = parser.parse_args()
 port = str(args.p)
 host = args.d
+action = args.a
 ssh_cmd = 'ssh -o ConnectTimeout=7 -NfL ' + port + ':localhost:' + port + ' ' + host
 
 
@@ -69,7 +77,7 @@ for line in os.popen(pid_cmd).read().splitlines():
 
 
 # Forward the port by starting a process with the ssh command
-if(args.action == START):
+if(action == START):
     print('Forwarding port ' + port + ' to ' + host + '...')
     if(len(pids) == 0):
         try:
@@ -86,7 +94,7 @@ if(args.action == START):
 
 
 # Stop forwarding the port(s) by killing the pid(s) having the ssh command
-elif(args.action == STOP):
+elif(action == STOP):
     print('Unforwarding port ' + port + ' from ' + host + '...')
     for pid in pids:
         try:
