@@ -50,75 +50,115 @@ parser.add_argument(
 )
 
 
-# Compose an ssh command that will start forward the port to the host
+# Get args from parser
 args = parser.parse_args()
-port = str(args.p[0])  # Just use 1 during debugging
+ports = map(lambda(a): str(a), args.p)
 host = args.d
 action = args.a
 
-# Readback the args during debugging
-print("Host: " + host)
-print("Port: " + port)
-print("Action: " + action)
+
+# Use ss to check port listening status: 'ss -Ho state listening 'sport = <port>'
+# I wonder if grep not finding something is a return code?
+# 'ss -Ho state listening 'sport = 8003' | grep 8003'   would return something if port in use and nothing if not.
+
+# Run the command, returning a tuple with the return code and the output
+def runProc(cmd):
+    foo=(1,'')
+    try:
+        foo[0] = subprocess.call(cmd)
+    except:
+        foo[0] =1
+
+def portListening(port):
+    cmd = 'ss -o state listening \'sport = ' + port + '\''
+    subprocess.run(cmd, capture_output='true')
+
+
+def start(port):
+    print('Forwarding port ' + port + ' to ' + host + '...')
+
+def stop(port):
+    print('Unforwarding port ' + port + ' from ' + host + '...')
+
+def status(port):
+    print('Checking status of port ' + port + '...')
+    cmd = 'ss -o state listening \'sport = ' + port + '\''
+    print (cmd)
+
+
+# Service one port
+def service(port):
+    if(action == START):
+        start(port)
+    elif(action == STOP):
+        stop(port)
+    else:
+        status(port)
+
+
+# Service all the ports
+for port in ports:
+    service(port)
 
 
 
+# Compose an ssh command that will start forward the port to the host
 ssh_cmd = 'ssh -o ConnectTimeout=7 -NfL ' + port + ':localhost:' + port + ' ' + host
 
 
-
+print(ssh_cmd)
 # Find the pid(s) for any processes running our ssh command.  If any exist,
 # the port has already been forwarded.
-pids = []
-pid_cmd = 'ps -C ssh'
-for line in os.popen(pid_cmd).read().splitlines():
-    toks = line.split()
-    if(len(toks) > 0):
-        tok = toks[0]
-        if(tok.isdigit()):
-            output = os.popen('ps -p ' + tok + ' -o args=').read().rstrip('\n')
-            if(ssh_cmd == output):
-                pids.append(tok)
+#pids = []
+#pid_cmd = 'ps -C ssh'
+#for line in os.popen(pid_cmd).read().splitlines():
+#    toks = line.split()
+#    if(len(toks) > 0):
+#        tok = toks[0]
+#        if(tok.isdigit()):
+#            output = os.popen('ps -p ' + tok + ' -o args=').read().rstrip('\n')
+#            if(ssh_cmd == output):
+#                pids.append(tok)
 
 
 # Forward the port by starting a process with the ssh command
-if(action == START):
-    print('Forwarding port ' + port + ' to ' + host + '...')
-    if(len(pids) == 0):
-        try:
-            output = os.popen(ssh_cmd).read()
-            if(len(output) > 0):
-                print(output)
-            print('Port '+port+' is now forwarded to '+host)
-        except:
-            print('Could not forward port ' + port + ' to ' + host)
-            sys.exit(1)
-    else:
-        for pid in pids:
-            print('Port '+port+' was already forwarded to '+host+' ['+pid+']')
+#if(action == START):
+#    print('Forwarding port ' + port + ' to ' + host + '...')
+#    if(len(pids) == 0):
+#        try:
+#            output = os.popen(ssh_cmd).read()
+#            if(len(output) > 0):
+#                print(output)
+#            print('Port '+port+' is now forwarded to '+host)
+#        except:
+#            print('Could not forward port ' + port + ' to ' + host)
+#            sys.exit(1)
+#    else:
+#        for pid in pids:
+#            print('Port '+port+' was already forwarded to '+host+' ['+pid+']')
 
 
 # Stop forwarding the port(s) by killing the pid(s) having the ssh command
-elif(action == STOP):
-    print('Unforwarding port ' + port + ' from ' + host + '...')
-    for pid in pids:
-        try:
-            output = os.popen('kill ' + str(pid)).read()
-            if(len(output) > 0):
-                print(output)
-            print('Port '+port+' is now unforwarded from '+host +' ['+pid+']')
-        except:
-            print('Could not unforward port ' + port + ' from ' + host)
-            sys.exit(1)
-    if(len(pids) == 0):
-        print('Port '+port+' was not forwarded to '+host)
+#elif(action == STOP):
+#    print('Unforwarding port ' + port + ' from ' + host + '...')
+#    for pid in pids:
+#        try:
+#            output = os.popen('kill ' + str(pid)).read()
+#            if(len(output) > 0):
+#                print(output)
+#            print('Port '+port+' is now unforwarded from '+host +' ['+pid+']')
+#        except:
+#            print('Could not unforward port ' + port + ' from ' + host)
+#            sys.exit(1)
+#    if(len(pids) == 0):
+#        print('Port '+port+' was not forwarded to '+host)
 
 
 # Check the status of the port by testing if it already has an ssh process
-else:  # STATUS
-    print('Checking status of port ' + port + ' on ' + host + '...')
-    for pid in pids:
-        print('Port '+port+' is forwarded to '+host+' ['+pid+']')
-    if(len(pids) == 0):
-        print('Port ' + port + ' is not forwarded to ' + host)
+#else:  # STATUS
+#    print('Checking status of port ' + port + ' on ' + host + '...')
+#    for pid in pids:
+#        print('Port '+port+' is forwarded to '+host+' ['+pid+']')
+#    if(len(pids) == 0):
+#        print('Port ' + port + ' is not forwarded to ' + host)
 
