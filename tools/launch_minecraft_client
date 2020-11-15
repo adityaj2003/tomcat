@@ -5,7 +5,7 @@ TOMCAT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../" >/dev/null 2>&1 && pwd)"
 export TOMCAT
 source "$TOMCAT"/tools/recording_helper
 
-start_mosquitto
+"$TOMCAT"/tools/start_mosquitto
 
 port=10000
 while [ $# -gt 0 ]
@@ -39,6 +39,3 @@ start_recording() {
 
 start_recording &
 ./check_minecraft -port $port
-
-
-

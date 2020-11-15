@@ -2,6 +2,7 @@
 
 set -u 
 
+export TOMCAT_TMP_DIR=/tmp/$USER/tomcat
 minecraft_log="${TOMCAT_TMP_DIR}/minecraft.log"
 minecraft_launch_pid_file="${TOMCAT_TMP_DIR}/minecraft_launch.pid"
 
