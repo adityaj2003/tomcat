@@ -7,6 +7,9 @@ set -euo pipefail
 TOMCAT="$(cd "$( dirname "${BASH_SOURCE[0]}" )/../" >/dev/null 2>&1 && pwd)"
 export TOMCAT
 
+source "$TOMCAT"/tools/configuration_helpers
+configure_session
+
 ###############################################################################
 
 # Start mosquitto message broker if it is not already running.
