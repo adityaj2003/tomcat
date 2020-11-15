@@ -19,10 +19,13 @@ set_local_configuration
 echo "Checking if mosquitto broker is running..."
 "$TOMCAT"/tools/start_mosquitto
 
-echo "Checking if Xvfb server 1 is in use..."
-if [[ $(xdpyinfo -display :1 >/dev/null 2>&1 && echo "In use" || echo "Free") == "Free" ]]; then
-    echo "Xvfb server 1 is not in use, so we will start it up."
-    Xvfb :1 -screen 0 1400x900x24 &
+# We assume that we'll need to run Xvfb only on Linux servers
+if [[ $OSTYPE == "linux-gnu" ]]; then
+    echo "Checking if Xvfb server 1 is in use..."
+    if [[ $(xdpyinfo -display :1 >/dev/null 2>&1 && echo "In use" || echo "Free") == "Free" ]]; then
+        echo "Xvfb server 1 is not in use, so we will start it up."
+        Xvfb :1 -screen 0 1400x900x24 &
+    fi
 fi
 
 export DISPLAY=:1.0
