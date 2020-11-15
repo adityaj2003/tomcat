@@ -53,7 +53,6 @@ def ssh_cmd(port, host):
 def create_port_forwarding_dict():
     forwarded_ports = {}
     for line in sp.run(["ps", "x"], capture_output=True).stdout.splitlines():
-        # We take a slice [1:-1] to exclude single quotes
         tokens = line.split()
         pid = tokens[0]
         cmd = tokens[4:]
