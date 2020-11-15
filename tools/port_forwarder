@@ -1,39 +1,136 @@
-#!/usr/bin/python3
+#!/usr/bin/env python
+#
+# Authors: Joseph Astier, Adarsh Pyarelal
+# Date: 2020 October
+#
+# Single Port Forwarder.  This script will manage forwarding one
+# port from this machine to the same port destination machine, by starting an ssh
+# process that will maintain the port forwarding in the background.
+# The command used to start the forwarding is later used to check for a
+# running process.
+#
+# Required arguments:
+#
+# host       Destination, either a hostname or IPV4/IPV6 address
+#
+# ports      Port(s) to be forwarded to the destination machine
+#
+#
+# actions (choose one):
+#
+# start    Begin forwarding the port by starting a background ssh process
+#
+# stop     Stop the port by killing the forwarding ssh process.
+#
+# status   Report whether the port is currently in use.
 
-""" A helper script to automate port forwarding. """
 
+import os
+import re
+import sys
 import argparse
 import subprocess as sp
 
-parser = argparse.ArgumentParser(
-    description="Helper script for port forwarding."
-)
+parser = argparse.ArgumentParser()
+
+# add args
+
+# add actions
+parser.add_argument("action", choices=("start", "stop", "status"))
+
 parser.add_argument(
-    "cmd", help="The command to execute", choices=["start", "stop"]
+    "host",
+    type=str,
+    help="Host, either a hostname or IP address",
 )
+parser.add_argument("ports", type=int, nargs="+", help="Port(s) to forward")
+
+
+# Compose an ssh command that will start forward the port to the host
 args = parser.parse_args()
+host = args.host
 
-# TODO: Implement the server as a command line option
-# TODO: Implement support for multiple ports
 
-server = "laplace"
+def ssh_cmd(port):
+    return [
+        "ssh",
+        "-o",
+        "ConnectTimeout=7",
+        "-NfL",
+        f"{port}:localhost:{port}",
+        host,
+    ]
 
-if args.cmd == "start":
-    for port in [1883,10001,10000]:
-        # TODO Implement error handling, including checking if a port is
-        # already forwarded.
-        sp.run(
-            [
-                "ssh",
-                "-o",
-                "ConnectTimeout=7",
-                "-f",
-                "-N",
-                "-L",
-                f"{port}:localhost:{port}",
-                server,
-            ]
-        )
+
+# Check which ports are already forwarded.
+forwarded_ports = {}
+
+for line in sp.run(["ps", "x"], capture_output=True).stdout.splitlines():
+    # We take a slice [1:-1] to exclude single quotes
+    tokens = line.split()
+    pid = tokens[0]
+    cmd = tokens[4:]
+
+    # Check if the command starts with 'ssh'
+    if cmd[0] == b"ssh":
+        for i, part in enumerate(cmd):
+
+            # Get the part of the command that contains the -L flag
+            if part.startswith(b"-") and b"L" in part:
+
+                # Get the components of the argument provided to the -L flag
+                source_port, destination_server, destination_port = cmd[
+                    i + 1
+                ].split(b":")
+                forwarded_ports[int(source_port)] = {
+                    "destination_server": destination_server,
+                    "destination_port": int(destination_port),
+                    "host": cmd[i + 2],
+                    "pid": int(pid),
+                }
+
+
+def print_port_forwarding_status(port):
+    print(
+        f"Port {port} is already forwarded to",
+        f"{forwarded_ports[port]['destination_port']}",
+        "on host",
+        forwarded_ports[port]["host"].decode("utf-8"),
+        f"(PID: {forwarded_ports[port]['pid']})",
+    )
+
+
+# Forward the port by starting a process with the ssh command
+if args.action == "start":
+    for port in args.ports:
+        if port in forwarded_ports:
+            print_port_forwarding_status(port)
+        else:
+            print(f"Forwarding port {port}... to {host}")
+            sp.run(ssh_cmd(port))
+
+
+# Stop forwarding the port(s) by killing the pid(s) having the ssh command
+elif args.action == "stop":
+    for port in args.ports:
+        if port not in forwarded_ports:
+            print(
+                "Port {port} is not currently forwarded",
+                "(or at least this script cannot detect that it is forwarded).",
+            )
+        else:
+            pid = forwarded_ports[int(port)]["pid"]
+            sp.run(["kill", str(pid)])
+            print(
+                f"Port {port} is no longer being forwarded to {host} (stopped PID {pid})."
+            )
+
+
+# Check the status of the port by testing if it already has an ssh process
 else:
-    # TODO: Implement automated stopping of port forwarding
-    raise NotImplementedError
+    for port in args.ports:
+        print(f"Checking status of port {port} on host {host}...")
+        if port in forwarded_ports:
+            print_port_forwarding_status(port)
+        else:
+            print(f"Port {port} is currently not forwarded.")
