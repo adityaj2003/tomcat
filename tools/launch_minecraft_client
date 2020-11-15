@@ -7,19 +7,9 @@ source "$TOMCAT"/tools/recording_helper
 
 "$TOMCAT"/tools/start_mosquitto
 
-port=10000
-while [ $# -gt 0 ]
-do
-    case "$1" in
-        -port) port="$2"; shift;;
-        *) echo >&2 \
-            "usage: $0 [-port 10000]"
-            exit 1;;
-    esac
-    shift
-done
+port=10001
 
-./port_forwarder start
+"$TOMCAT"/tools/port_forwarder start laplace $port
 
 start_recording() {
     echo "Waiting for recording starting signal"
@@ -37,5 +27,6 @@ start_recording() {
     done
 }
 
-start_recording &
-./check_minecraft -port $port
+# TODO Potentially uncomment this line when multiplayer is working properly.
+#start_recording &
+"$TOMCAT"/tools/check_minecraft -port $port
