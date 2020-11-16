@@ -34,7 +34,10 @@ The file states_json.json will be created containing all the state information u
 
 ## State information
 
-The primary keys in states_json.json are the action numbers. And the state also contains  
+The primary keys in states_json.json are the action numbers. 
+
+The state also contains  
+
 **time_stamp**: time stamp in the game;  
 **action**: search_room, search_hallway, move, triage;  
 **coordinates**: agent's current coordinates (x, z);  
