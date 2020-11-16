@@ -26,8 +26,7 @@
 #
 
 import argparse
-import os
-import sys
+import subprocess
 
 # define some handy globals
 START  = 'start'
@@ -35,7 +34,7 @@ STOP   = 'stop'
 STATUS = 'status'
 parser = argparse.ArgumentParser()
 
-# add args
+# Configure argument parser
 parser.add_argument(
     '-d', type=str, required=True,
     help='Host, either a hostname or IP address'
@@ -50,115 +49,101 @@ parser.add_argument(
 )
 
 
-# Get args from parser
+# Read args from parser
 args = parser.parse_args()
-ports = map(lambda(a): str(a), args.p)
+ports = map(str, args.p)
 host = args.d
 action = args.a
 
 
-# Use ss to check port listening status: 'ss -Ho state listening 'sport = <port>'
-# I wonder if grep not finding something is a return code?
-# 'ss -Ho state listening 'sport = 8003' | grep 8003'   would return something if port in use and nothing if not.
+# Return the PIDs of all processes using this port.  
+def pidsForPort(port):
+    cmd = ['ss', '-altp']
+    proc = subprocess.run(cmd, capture_output='true')
+    lines = str(proc.stdout).split('\\n')
+    portstr = '127.0.0.1:' + port
+    pidstr = 'pid='
+    pids = []
+    for line in lines:
+        if((portstr in line) and (pidstr in line)):
+            toks = line.split(pidstr)
+            pid = toks[1].split(',')[0]
+            pids += [pid]
+    return pids
 
-# Run the command, returning a tuple with the return code and the output
-def runProc(cmd):
-    foo=(1,'')
-    try:
-        foo[0] = subprocess.call(cmd)
-    except:
-        foo[0] =1
 
-def portListening(port):
-    cmd = 'ss -o state listening \'sport = ' + port + '\''
-    subprocess.run(cmd, capture_output='true')
+# Check the status of a port.
+def status(port):
+    print('Checking status of port ' + port + '...')
+    pids = pidsForPort(port)
+
+    # If there are no PIDs associated with this port, it is not in use
+    if(len(pids) == 0):
+        print('  Port ' + port + ' is not in use')
+    else:
+        print('  Port ' + port + ' is busy')
 
 
+# Attempt to forward the port.   
 def start(port):
     print('Forwarding port ' + port + ' to ' + host + '...')
 
+    # If no PIDs exist for this port, it's available.  
+    if(len(pidsForPort(port)) == 0):
+
+        # Try to forward the port to the destination machine
+        cmd = [
+            'ssh',
+            '-o ConnectTimeout=7',
+            '-NfL',
+            port+':localhost:'+port,
+            host,
+        ]
+        completedProcess = subprocess.run(cmd)
+
+        # There should now be a PID for this port.
+        if(len(pidsForPort(port)) > 0):
+            print('  Port ' + port + ' has been forwarded to ' + host)
+        else:
+            print('  Could not forward port ' + port)
+
+    # Otherwise, the port is already in use:
+    else:
+        print('  port ' + port + ' was busy')
+
+
+# Attempt to stop forwarding the port
 def stop(port):
     print('Unforwarding port ' + port + ' from ' + host + '...')
+    pids = pidsForPort(port)
+    
+    # Kill any PIDs for this port
+    if(len(pids) > 0):
+        for pid in pids:
+            cmd = ['kill', str(pid)]
+            completedProcess = subprocess.run(cmd)
 
-def status(port):
-    print('Checking status of port ' + port + '...')
-    cmd = 'ss -o state listening \'sport = ' + port + '\''
-    print (cmd)
+        # There should now be no pids for this port
+        if(len(pidsForPort(port)) == 0):
+            print('  Unforwarded port ' + port + ' from ' + host)
+        else:
+            print('  Could not unforward port ' + port + ' from ' + host)
 
-
-# Service one port
-def service(port):
-    if(action == START):
-        start(port)
-    elif(action == STOP):
-        stop(port)
+    # If no PIDs were found, the port was not in use
     else:
-        status(port)
-
+        print('  Port ' + port + ' was not in use')
+        
 
 # Service all the ports
 for port in ports:
-    service(port)
+    try:
+        if(action == START):
+            start(port)
+        elif(action == STOP):
+            stop(port)
+        else:
+            status(port)
+    except:
+        print(  'An exception was thrown during this operation')
 
-
-
-# Compose an ssh command that will start forward the port to the host
-ssh_cmd = 'ssh -o ConnectTimeout=7 -NfL ' + port + ':localhost:' + port + ' ' + host
-
-
-print(ssh_cmd)
-# Find the pid(s) for any processes running our ssh command.  If any exist,
-# the port has already been forwarded.
-#pids = []
-#pid_cmd = 'ps -C ssh'
-#for line in os.popen(pid_cmd).read().splitlines():
-#    toks = line.split()
-#    if(len(toks) > 0):
-#        tok = toks[0]
-#        if(tok.isdigit()):
-#            output = os.popen('ps -p ' + tok + ' -o args=').read().rstrip('\n')
-#            if(ssh_cmd == output):
-#                pids.append(tok)
-
-
-# Forward the port by starting a process with the ssh command
-#if(action == START):
-#    print('Forwarding port ' + port + ' to ' + host + '...')
-#    if(len(pids) == 0):
-#        try:
-#            output = os.popen(ssh_cmd).read()
-#            if(len(output) > 0):
-#                print(output)
-#            print('Port '+port+' is now forwarded to '+host)
-#        except:
-#            print('Could not forward port ' + port + ' to ' + host)
-#            sys.exit(1)
-#    else:
-#        for pid in pids:
-#            print('Port '+port+' was already forwarded to '+host+' ['+pid+']')
-
-
-# Stop forwarding the port(s) by killing the pid(s) having the ssh command
-#elif(action == STOP):
-#    print('Unforwarding port ' + port + ' from ' + host + '...')
-#    for pid in pids:
-#        try:
-#            output = os.popen('kill ' + str(pid)).read()
-#            if(len(output) > 0):
-#                print(output)
-#            print('Port '+port+' is now unforwarded from '+host +' ['+pid+']')
-#        except:
-#            print('Could not unforward port ' + port + ' from ' + host)
-#            sys.exit(1)
-#    if(len(pids) == 0):
-#        print('Port '+port+' was not forwarded to '+host)
-
-
-# Check the status of the port by testing if it already has an ssh process
-#else:  # STATUS
-#    print('Checking status of port ' + port + ' on ' + host + '...')
-#    for pid in pids:
-#        print('Port '+port+' is forwarded to '+host+' ['+pid+']')
-#    if(len(pids) == 0):
-#        print('Port ' + port + ' is not forwarded to ' + host)
 
