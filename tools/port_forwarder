@@ -72,6 +72,21 @@ def pidsForPort(port):
     return pids
 
 
+# Return the PIDs of all ssh processes using this port on our host.  
+def pidsForPortToHost(port):
+    cmd = ['ps', '-C', 'ssh', 'n']
+    proc = subprocess.run(cmd, capture_output='true')
+    lines = str(proc.stdout).split('\\n')
+    portstr = port + ':localhost:' + port
+    pids = []
+    for line in lines:
+        if((portstr in line) and (host in line)):
+            toks = line.split()
+            pid = toks[0]
+            pids += [pid]
+    return pids
+
+
 # Check the status of a port.
 def status(port):
     print('Checking status of port ' + port + '...')
@@ -101,21 +116,21 @@ def start(port):
         ]
         completedProcess = subprocess.run(cmd)
 
-        # There should now be a PID for this port.
-        if(len(pidsForPort(port)) > 0):
+        # There should now be a PID for our fowarding
+        if(len(pidsForPortToHost(port)) > 0):
             print('  Port ' + port + ' has been forwarded to ' + host)
         else:
-            print('  Could not forward port ' + port)
+            print('  Could not forward port ' + port + ' to ' + host)
 
     # Otherwise, the port is already in use:
     else:
         print('  port ' + port + ' was busy')
 
 
-# Attempt to stop forwarding the port
+# Attempt to stop forwarding the port, only killing our own processes
 def stop(port):
     print('Unforwarding port ' + port + ' from ' + host + '...')
-    pids = pidsForPort(port)
+    pids = pidsForPortToHost(port)
     
     # Kill any PIDs for this port
     if(len(pids) > 0):
