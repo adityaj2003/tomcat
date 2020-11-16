@@ -38,10 +38,10 @@ The primary keys in states_json.json are the action numbers.
 
 The state also contains  
 
-**time_stamp**: time stamp in the game;  
+**time_stamp**: time stamp to start the action;  
 **action**: search_room, search_hallway, move, triage;  
-**coordinates**: agent's current coordinates (x, z);  
-**locations**: current location's id and name;  
+**coordinates**: agent's coordinates (x, z) while finishing the action;  
+**locations**: location's id and name while finishing the action;  
 **exited_locations**: exited locations;  
 **effect in the search actions**: victims showing during the search;  
 **effect in the triage actions**: SUCCESSFUL or UNSUCCESSFUL;  

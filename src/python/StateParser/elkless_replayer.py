@@ -1,0 +1,99 @@
+#!/usr/bin/env python3
+
+# Author: Adarsh Pyarelal (adarsh@arizona.edu)
+# With contributions from:
+# - Prakash Manghwani
+# - Jeffrey Rye
+
+""" ELKless Replayer is a simple program to replay messages from a file
+containing messages collected during a TA3 experimental trial and dumped from
+an Elasticsearch database.
+For each line in the input file, it extracts the JSON-serialized message and
+the topic it was published to, and republishes the message to the same
+topic."""
+
+# To see the command line arguments and invocation pattern, run
+#     ./elkless_replayer -h
+
+import json
+from dateutil.parser import parse
+import argparse
+import paho.mqtt.client as mqtt
+
+MQTTC = mqtt.Client()
+
+PUBLISHED_COUNT = 0
+
+
+def incr_publish_count(_client, _userdata, _mid):
+    global PUBLISHED_COUNT
+    PUBLISHED_COUNT += 1
+
+
+if __name__ == "__main__":
+
+    # Argument parsing
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("input", help="The messages file to replay to the bus")
+    parser.add_argument(
+        "-m",
+        "--host",
+        help="Host that the mosquitto message broker is running on.",
+        default="localhost",
+    )
+    parser.add_argument(
+        "-p",
+        "--port",
+        type=int,
+        help="Port that the mosquitto message broker is running on.",
+        default=1883,
+    )
+    args = parser.parse_args()
+
+    # Open the input file, parse each line in it as a JSON-serialized object.
+    print("Collecting messages...")
+    with open(args.input, "r") as f:
+        messages = []
+        for line in f:
+            jline = None
+            try:
+                jline = json.loads(line)
+            except:
+                print(f"Bad json line of len: {len(line)}, {line}")
+            if jline is not None:
+                messages.append(jline)
+
+        print("Sorting messages...")
+        sorted_messages = sorted(
+            messages, key=lambda x: parse(x["header"]["timestamp"])
+        )
+
+        print(f"Publishing {len(sorted_messages)} messages...")
+
+        MQTTC.connect(args.host, port=args.port)
+        MQTTC.on_publish = incr_publish_count
+
+        MQTTC.loop_start()
+
+        for data in sorted_messages:
+            # Delete keys that were not in the original message, for more
+            # faithful replaying.
+
+            for key in ("message", "@timestamp", "@version", "host"):
+                if key in data:
+                    del data[key]
+
+            # Get the topic to publish the message to.
+            topic = data.pop("topic")
+            msg_info = MQTTC.publish(topic, json.dumps(data))
+            msg_info.wait_for_publish()
+
+        # Now we should have really pushed all the messages.
+
+        if PUBLISHED_COUNT != len(sorted_messages):
+            print(
+                f"ERROR: Failed to publish {len(sorted_messages) - PUBLISHED_COUNT}",
+                f"out of {len(sorted_messages)} messages."
+            )
+        else:
+            print(f"Successfully published all messages from {args.input}.")
