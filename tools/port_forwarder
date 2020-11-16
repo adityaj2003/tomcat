@@ -142,7 +142,7 @@ def stop(port):
         if(len(pidsForPort(port)) == 0):
             print('  Unforwarded port ' + port + ' from ' + host)
         else:
-            print('  Could not unforward port ' + port + ' from ' + host)
+            print('  Could not unforward port ' + port)
 
     # If no PIDs were found, the port was not in use
     else:
