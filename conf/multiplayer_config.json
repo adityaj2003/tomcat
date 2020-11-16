@@ -1,12 +1,12 @@
 {
   "server" : {
-    "address":"192.168.1.112",
+    "address":"192.168.1.104",
     "port":10000
   },
   "clients": [
     {
       "name": "player1",
-      "address": "192.168.1.133",
+      "address": "192.168.1.102",
       "port": 10001
     }
   ]

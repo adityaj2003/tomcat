@@ -15,12 +15,24 @@ mkdir -p "${TOMCAT_TMP_DIR}"
 
 minecraft_log="${TOMCAT_TMP_DIR}/minecraft.log"
 
+port=10000
+while [ $# -gt 0 ]
+do
+    case "$1" in
+        -port) port="$2"; shift;;
+        *) echo >&2 \
+            "usage: $0 [-port 10000]"
+            exit 1;;
+    esac
+    shift
+done
+
 cd ${TOMCAT}/external/malmo/Minecraft
 
 echo $$ > "${TOMCAT_TMP_DIR}/wrap_launch.pid"
 
-echo "Running: launchClient.sh in ${TOMCAT}/external/malmo/Minecraft" 
-./launchClient.sh < /dev/null >& ${minecraft_log} &
+echo "Running: launchClient.sh in ${TOMCAT}/external/malmo/Minecraft"
+./launchClient.sh -port $port < /dev/null >& ${minecraft_log} &
 bg_pid=$!
 echo $bg_pid > ${TOMCAT_TMP_DIR}/minecraft_launch.pid
 echo "Minecraft is starting up in the background."  

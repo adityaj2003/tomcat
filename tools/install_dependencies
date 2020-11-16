@@ -9,7 +9,7 @@ export TOMCAT
 
 echo "Installing ToMCAT dependencies."
 
-COMMON_MACOS_DEPS="cmake boost doxygen ffmpeg gradle mosquitto nlohmann-json openssl"
+COMMON_MACOS_DEPS="cmake boost doxygen ffmpeg gradle mosquitto nlohmann-json openssl yaml-cpp"
 __install_dependencies_using_macports() {
     echo "'port' executable detected, assuming that MacPorts"
     echo "(https://www.macports.org) is installed and is the package manager."
@@ -20,7 +20,7 @@ __install_dependencies_using_macports() {
 
     if ! sudo port selfupdate; then exit 1; fi
 
-    local macports_deps="libfmt openblas"
+    local macports_deps="libfmt"
     for dep in $COMMON_MACOS_DEPS $macports_deps; do
         if ! sudo port -N install $dep; then
             echo "Unable to install $dep using MacPorts. Exiting."
@@ -32,9 +32,6 @@ __install_dependencies_using_macports() {
     if (( ENABLE_SYSTEM_AUDIO_RECORDING )); then
         if ! sudo port -N install blackhole switchaudio-osx; then exit 1; fi
     fi
-
-    # TODO When OpenFace is reintroduced, add dlib, opencv, openblas installation
-    # back here.
 }
 
 __install_dependencies_using_homebrew() {
@@ -43,8 +40,25 @@ __install_dependencies_using_homebrew() {
 
     echo "Installing ToMCAT dependencies using Homebrew."
 
-    if ! brew update; then exit 1; fi
+    # =========================================================================
+    # 2020-10-21: There seems to be a problem with Homebrew on the Github
+    # Actions macOS runner:
+    # https://github.com/actions/virtual-environments/issues/1811. This block
+    # of code is a *temporary* workaround, and should be removed soon. Probably
+    # by December 2020 at the latest. - Adarsh
+    # -------------------------------------------------------------------------
+    if (( CI )); then
+        brew uninstall openssl@1.0.2t
+        brew uninstall python@2.7.17
+        brew untap local/openssl
+        brew untap local/python2
+    fi
+    # ==========================================================================
 
+    if ! brew update --verbose; then
+        echo "The command 'brew update' failed. Exiting now."
+        exit 1
+    fi
 
     local homebrew_deps="fmt"
     for dep in $COMMON_MACOS_DEPS $homebrew_deps; do
@@ -68,14 +82,7 @@ __install_dependencies_using_homebrew() {
         if [[ $? -ne 0 && $? -ne 1 ]]; then exit 1; fi
     fi
 
-    if (( CI )); then
-      # On a CI runner, we will install lcov to provide code coverage estimates.
-      brew install lcov;
-      if [[ $? -ne 0 && $? -ne 1 ]]; then exit 1; fi
-    fi;
 
-    # TODO When OpenFace is reintroduced, add dlib, opencv, openblas
-    # installation back here.
 }
 
 __install_dependencies_using_apt() {
@@ -84,34 +91,36 @@ __install_dependencies_using_apt() {
     echo ""
     echo "Installing dependencies using apt-get"
 
+    if [[ $DISTRO == ubuntu && $DISTRO_MAJOR_VERSION -lt 20 ]]; then
+        echo "Automatic installation of dependencies is only supported with"\
+             "Ubuntu 20.04 or later, since the required libraries are not available"\
+             "in recent enough versions using apt-get on earlier versions of Ubuntu."
+        exit 1
+    fi
+
     if ! sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test; then exit 1; fi
 
     if ! sudo apt-get update; then exit 1; fi
 
-    sudo apt-get install -y --allow-downgrades\
+    sudo apt-get install -y \
         cmake \
         gcc-9 \
         libfmt-dev \
         doxygen \
         ffmpeg \
         wmctrl \
-        mosquitto\
-        mosquitto-clients\
-        curl\
-        openssl
+        mosquitto \
+        mosquitto-clients \
+        curl \
+        openssl \
+        zlib1g-dev \
+        libbz2-dev \
+        libyaml-cpp-dev \
+        libmosquitto-dev \
+        libboost-all-dev \
+        nlohmann-json3-dev
     if [[ $? -ne 0 ]]; then exit 1; fi
 
-    # On Ubuntu 18.04, the required version of the nlohmann-json JSON library
-    # is not available using apt-get, so we install from source.
-    if ! "$TOMCAT"/tools/install_from_source/nlohmann-json; then exit 1; fi
-
-    # The Github Actions Ubuntu 18.04 VM already has Boost installed, but not
-    # all the components we need. So we will use apt-get to install the missing
-    # ones.
-    if ! sudo apt-get install -y libboost-all-dev; then exit 1; fi
-
-    # TODO - when OpenFace gets added back, add opencv, openblas, and dlib as
-    # dependencies.
 }
 
 __install_dependencies() {

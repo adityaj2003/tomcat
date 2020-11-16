@@ -1,0 +1,34 @@
+#!/bin/bash
+
+# Script to launch the multiplayer server. This script handles launching the
+# Minecraft integrated server headlessly using Xvfb.
+
+set -euo pipefail
+
+# Set the TOMCAT environment variable, assuming that the directory structure
+# mirrors that of the git repository.
+TOMCAT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../" >/dev/null 2>&1 && pwd)"
+export TOMCAT
+
+source "$TOMCAT"/tools/configuration_helpers
+set_local_configuration
+
+# TODO: Uncomment the line below once we have multiplayer working properly.
+# source "$TOMCAT"/tools/recording_helper
+
+echo "Checking if mosquitto broker is running..."
+"$TOMCAT"/tools/start_mosquitto
+
+# We assume that we'll need to run Xvfb only on Linux servers
+if [[ $OSTYPE == "linux-gnu" ]]; then
+    echo "Checking if Xvfb server 1 is in use..."
+    if [[ $(xdpyinfo -display :1 >/dev/null 2>&1 && echo "In use" || echo "Free") == "Free" ]]; then
+        echo "Xvfb server 1 is not in use, so we will start it up."
+        Xvfb :1 -screen 0 1400x900x24 &
+    fi
+fi
+
+export DISPLAY=:1.0
+export TOMCAT_FULL_SCREEN=0
+
+"$TOMCAT"/tools/check_minecraft -port 10000

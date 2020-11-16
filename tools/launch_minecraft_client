@@ -1,0 +1,42 @@
+#!/bin/bash
+set -u
+
+TOMCAT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../" >/dev/null 2>&1 && pwd)"
+export TOMCAT
+source "$TOMCAT"/tools/recording_helper
+
+"$TOMCAT"/tools/start_mosquitto
+
+port=10000
+while [ $# -gt 0 ]
+do
+    case "$1" in
+        -port) port="$2"; shift;;
+        *) echo >&2 \
+            "usage: $0 [-port 10000]"
+            exit 1;;
+    esac
+    shift
+done
+
+"$TOMCAT"/tools/port_forwarder start laplace $port
+
+start_recording() {
+    echo "Waiting for recording starting signal"
+    echo "Once the signal is received"\
+         "all clients will start recording at the same time."
+    recording_start=$(mosquitto_sub -t recording_start -C 1 &)
+    while :
+    do
+        if [ $recording_start ];
+        then
+            echo "start recording now..."
+            start_av_recording $SESSION_OUTPUT_DIR
+            break
+        fi
+    done
+}
+
+# TODO Potentially uncomment this line when multiplayer is working properly.
+#start_recording &
+"$TOMCAT"/tools/check_minecraft -port $port
