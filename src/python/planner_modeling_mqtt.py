@@ -13,8 +13,8 @@ def on_connect(client, userdata, flags, rc):
 def on_message(client, userdata, msg):
     print("on_message:", msg.topic+" "+str(msg.payload))
     # arg 1 = topic.   arg 2 = "the message itself." 
-    client.publish("agents/tomcat_planner", "dummy output from planner from"
-                   " within planner_modeling_mqtt.py")
+    client.publish("agents/tomcat_planner", "dummy data from planner"
+                   " hard-coded inside planner_modeling_mqtt.py")
 
 # Create client
 MQTTC = mqtt.Client()
