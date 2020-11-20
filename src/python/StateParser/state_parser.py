@@ -200,9 +200,6 @@ def on_message(message):
                 try:
                     m, s = data['mission_timer'].strip().split(":")
                     data_tmp['time_stamp'] = TOTAL_TIME - (int(m) * 60 + int(s))
-
-                    if data_tmp['time_stamp'] == 598:
-                        print()
                 except Exception as ex:
                     data_tmp['time_stamp'] = data['mission_timer']
                 data_tmp['action'] = 'triage'
@@ -356,9 +353,9 @@ def __on_message(client, userdata, msg):
 
 
 missions = {
-        "Falcon": {"filename": "Falcon_sm_v1.0.json"},
-        "Competency_Test": {"filename": "Competency_Test_sm_v1.0.json"}
-    }
+    "Falcon": {"filename": "Falcon_sm_v1.0.json"},
+    "Competency_Test": {"filename": "Competency_Test_sm_v1.0.json"}
+}
 
 print("Starting the MQTT Bus pub/sub system...")
 message_bus = mqtt.Client("IHMCLocationMonitorAgent:" + str(uuid.uuid4()))
