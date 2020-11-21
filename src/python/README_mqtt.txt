@@ -1,8 +1,7 @@
 Regarding planner_modeling_mqtt.py
 
 This program enables messages written from agents/tomcat_tmm to be received
-into agents/tomcat_planner. There is a hard-coded message in this mqtt file to
-ensure communication. Feel free to delete that.
+into agents/tomcat_planner. This file generates an action code.
 
 To run, open three different terminals.
 Terminal 1: $python planner_modeling_mqtt.py
