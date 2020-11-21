@@ -1,8 +1,12 @@
 import paho.mqtt.client as mqtt
+<<<<<<< HEAD
 import time
 import random
+=======
+import time # for sleeping, if desired
+>>>>>>> 197482eaa31ebf797082f3c2f6c22eeda84d1229
 
-#  # Subscribing within on_connect() renewconnection if disconnected. 
+#  # Subscribing within on_connect() renews connection if disconnected. 
 def on_connect(client, userdata, flags, rc):
     if rc == 0:
         print("Now connected with result code "+str(rc))

@@ -1,8 +1,0 @@
-{
-    "host":"localhost",
-    "port": "1883",
-    "maps": {
-        "Falcon": {"filename": "Falcon_sm_v1.0.json"},
-        "Competency_Test": {"filename": "Competency_Test_sm_v1.0.json"}
-    }
-}
