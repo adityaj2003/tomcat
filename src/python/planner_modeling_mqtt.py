@@ -1,5 +1,6 @@
 import paho.mqtt.client as mqtt
 import time
+import random
 
 #  # Subscribing within on_connect() renewconnection if disconnected. 
 def on_connect(client, userdata, flags, rc):
@@ -12,9 +13,9 @@ def on_connect(client, userdata, flags, rc):
 # The callback for when a PUBLISH message is received from the server.
 def on_message(client, userdata, msg):
     print("on_message:", msg.topic+" "+str(msg.payload))
-    # arg 1 = topic.   arg 2 = "the message itself." 
-    client.publish("agents/tomcat_planner", "dummy data from planner"
-                   " hard-coded inside planner_modeling_mqtt.py")
+    # arg 1 = topic.   arg 2 = randomized action code (ac)
+    ac = random.randint(0, 3)
+    client.publish("agents/tomcat_planner", ac)
 
 # Create client
 MQTTC = mqtt.Client()
