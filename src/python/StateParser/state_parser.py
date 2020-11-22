@@ -228,12 +228,13 @@ def get_search_effect(start_ob_number, end_ob_number):
     victims = {}
     for ob_number in range(int(start_ob_number), int(end_ob_number) + 1):
         for obj in fov_dict[ob_number]:
+            victim_room_name = get_location_name(obj['location'][0], obj['location'][2])
             if obj['type'] == 'block_victim_1':
-                victims[obj['id']] = {'type': 'Green', 'location': obj['location']}
+                victims[obj['id']] = {'type': 'Green', 'location': obj['location'], 'room': victim_room_name}
             elif obj['type'] == 'block_victim_2':
-                victims[obj['id']] = {'type': 'Yellow', 'location': obj['location']}
+                victims[obj['id']] = {'type': 'Yellow', 'location': obj['location'], 'room': victim_room_name}
             elif obj['type'] == 'block_victim_expired':
-                victims[obj['id']] = {'type': 'Dead', 'location': obj['location']}
+                victims[obj['id']] = {'type': 'Dead', 'location': obj['location'],'room': victim_room_name}
 
     return victims
 
