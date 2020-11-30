@@ -1,3 +1,4 @@
+#include "Mission.h"
 #include "FileHandler.h"
 #include "utils.h"
 #include <boost/date_time/posix_time/posix_time.hpp>
@@ -10,8 +11,6 @@
 #include <iostream>
 #include <nlohmann/json.hpp>
 #include <sstream>
-#include <iostream>
-#include <fstream>
 #include <dirent.h>
 #include <mosquitto.h>
 
@@ -92,7 +91,6 @@ namespace tomcat {
                     this->client_pool->add(ClientInfo(client_ip_address, client_port));
                 }
             }
-        }
     }
 
     void Mission::create_mission_spec() {
@@ -352,7 +350,6 @@ namespace tomcat {
                                                mission_has_begun.end(),
                                                [](bool v) { return v; });
             if (mission_has_begun_for_all) {
-                print(stderr, "Timed out waiting for mission to begin. Bailing.");
                 mosquitto_lib_init();
                 struct mosquitto *mosq = NULL;
                 mosq = mosquitto_new(0,true,NULL);
