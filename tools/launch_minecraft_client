@@ -19,7 +19,8 @@ do
     shift
 done
 
-"$TOMCAT"/tools/port_forwarder start laplace $port
+# TODO forward ports read form docs/multiplayer_config.json
+#"$TOMCAT"/tools/port_forwarder start laplace $port
 
 start_recording() {
     echo "Waiting for recording starting signal"
@@ -38,5 +39,5 @@ start_recording() {
 }
 
 # TODO Potentially uncomment this line when multiplayer is working properly.
-#start_recording &
+start_recording &
 "$TOMCAT"/tools/check_minecraft -port $port

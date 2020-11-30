@@ -28,10 +28,11 @@ SPEC_VERSION=$("$TOMCAT"/build/bin/getSpecVersion --spec "$TOMCAT"/docs/spec.yml
 
 if [[ $? -ne 0 ]]; then exit 1; fi
 
+# TODO the mission name needs to be appointed, the default name is 0
 # store the recording files in a given directory
 start_av_recording() {
-    RECORDING_DIR="$1"
-
+    MISSION_OUTPUT_DIR="$1"
+    CURRENT_MISSION=0
     ffmpeg\
     -f ${FFMPEG_FMT_WEBCAM}\
     ${FRAMERATE_OPTION:-}\

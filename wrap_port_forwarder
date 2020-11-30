@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+for Port in {57000..57200}
+do
+	python3 ./tools/port_forwarder start laplace $Port
+done
