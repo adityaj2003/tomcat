@@ -109,7 +109,7 @@ def start(port):
         # Try to forward the port to the destination machine
         cmd = [
             'ssh',
-            '-o ConnectTimeout=7',
+            '-o ConnectTimeout=60',
             '-NfL',
             port+':localhost:'+port,
             host,
