@@ -24,7 +24,10 @@ instance sar_inst {
   };
 
   tasks { //tasks are done in the order listed
-    YF; //No assignment
+    YF(?m); //Do not give assignment
+
+    \\Example with params
+    \\A(?m(a1,a2));
   };
 
   max-nondef-actions = 1;
