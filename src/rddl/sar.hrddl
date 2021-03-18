@@ -45,6 +45,8 @@ domain sar {
     //"if (A) ..." is equivalent to "if (A == true) ..." 
     if (YF(@search_YF)) then (search = 1 -> YF(?m)); 
 
+    // else if and else are not permitted here
+
     //Method example with params
     //if (A(@a(?v))) then (a = 1 -> B(?m(?v))); 
     
