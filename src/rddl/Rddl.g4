@@ -41,3 +41,66 @@ pv
 cpfs
   : 'cpfs' '{' stat* '}' ';'
   ;
+
+stat 
+  : (NAME | S_VAR) ('(' PARAM (',' PARAM)* ')')? ('=' expr)? ';' 
+  ;
+
+arith_expr 
+  : arith_expr '/' arith_expr
+  | arith_expr '*' arith_expr
+  | arith_expr '+' arith_expr
+  | arith_expr '-' arith_expr
+  | arith_expr '%' arith_expr
+  | arith_expr '**' arith_expr
+  | '!' arith_expr
+  | '(' arith_expr ')'
+  | '[' arith_expr ']'
+  | expr '<' expr
+  | expr '>' expr
+  | expr '<=' expr
+  | expr '>=' expr
+  | expr '==' expr
+  | expr '~=' expr
+  | expr '^' expr
+  | expr '|' expr
+  | expr '=>' expr
+  | expr '<=>' expr
+  | '~' expr
+  | '!' expr
+  | '(' expr ')'
+  | '[' expr ']'
+  | sum
+  | product
+  | e_quant
+  | u_quant
+  | conditional
+  | switch 
+  | dist
+  | NUM
+  | NAME ('(' PARAM (',' PARAM)* ')')? 
+  | BOOL
+  | ENUM
+  ;
+
+sum 
+  : 'sum_' '{' PARAM ':' NAME (',' PARAM ':' NAME)* '}' 
+  '[' expr ']' ';'
+  ;
+
+product 
+  : 'prod_' '{' PARAM ':' NAME (',' PARAM ':' NAME)* '}' 
+  '[' expr ']' ';'
+  ;
+
+e_quant 
+  : 'exists_' '{' PARAM ':' NAME (',' PARAM ':' NAME)* '}' 
+  '[' expr ']' ';'
+  ;
+
+u_quant 
+  : 'forall_' '{' PARAM ':' NAME (',' PARAM ':' NAME)* '}' 
+  '[' expr ']' ';'
+  ;
+
+
