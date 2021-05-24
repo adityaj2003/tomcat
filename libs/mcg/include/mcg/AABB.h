@@ -177,7 +177,7 @@ class AABB {
      *        Defaults to 0
      * @return Pos The random position
      */
-    Pos virtual getRandomPos(std::mt19937_64& gen,
+    Pos getRandomPos(std::mt19937_64& gen,
                              int offsetPosX = 0,
                              int offsetNegX = 0,
                              int offsetPosY = 0,
@@ -193,7 +193,7 @@ class AABB {
      * @return vector<Pos> The list of coordinates as: top, right, bottom and
      *         left edge midpoints.
      */
-    std::vector<Pos> virtual getEdgeMidpointAtBase();
+    std::vector<Pos> getEdgeMidpointAtBase();
 
     /**
      * @brief Get a particular AABB contained by this AABB. The AABB can be
@@ -277,7 +277,7 @@ class AABB {
      * @return true When the AABBs do overlap
      * @return false When the AABBs don't overlap
      */
-    bool virtual intersects(AABB& other);
+    bool intersects(AABB& other);
 
     /**
      * @brief Generate a box made of a specific material inside the AABB with
@@ -297,7 +297,7 @@ class AABB {
      * @param offsetNegZ How far away from the top wall should the position be.
      *        Defaults to 0
      */
-    void virtual generateBox(std::string material,
+    void generateBox(std::string material,
                              int offsetPosX = 0,
                              int offsetNegX = 0,
                              int offsetPosY = 0,
@@ -325,7 +325,7 @@ class AABB {
      * @param offsetNegZ How far away from the top wall should the position be.
      *        Defaults to 0
      */
-    void virtual addRandomBlocks(int n,
+    void addRandomBlocks(int n,
                                  std::string material,
                                  std::mt19937_64& gen,
                                  int offsetPosX = 0,
@@ -338,7 +338,7 @@ class AABB {
     /**
      * @brief Generate 4 doors for the AABB at the midpoint.
      */
-    void virtual generateAllDoorsInAABB();
+    void generateAllDoorsInAABB();
 
     /**
      * @brief Translate the AABB by the given amount in the X axis
@@ -376,7 +376,7 @@ class AABB {
      *
      * @return nlohmann::json The base json
      */
-    void virtual toSemanticMapJSON(nlohmann::json& json_base);
+    void toSemanticMapJSON(nlohmann::json& json_base);
 
     /**
      * @brief Adds the alternate block by block JSON representation of this
@@ -384,7 +384,7 @@ class AABB {
      *
      * @return nlohmann::json The base json
      */
-    void virtual toLowLevelMapJSON(nlohmann::json& json_base);
+    void toLowLevelMapJSON(nlohmann::json& json_base);
 
     /**
      * @brief Construct a new AABB object
@@ -428,8 +428,4 @@ class AABB {
      */
     AABB(std::string id);
 
-    /**
-     * @brief Destroy the AABB object
-     */
-    virtual ~AABB();
 };

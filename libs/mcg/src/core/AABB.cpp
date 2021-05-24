@@ -527,5 +527,3 @@ void AABB::toLowLevelMapJSON(json& json_base) {
         (*objectPtr).toLowLevelMapJSON(json_base);
     }
 }
-
-AABB::~AABB() {}
