@@ -11,7 +11,7 @@ class Object {
   private:
     std::string id;
     std::string type;
-    std::unique_ptr<Block> block;
+    std::shared_ptr<Block> block;
 
   public:
   /**
@@ -67,7 +67,7 @@ class Object {
      * @param type The type for this object
      * @param block The block associated with this object
      */
-    Object(std::string id, std::string type, std::unique_ptr<Block> block);
+    Object(std::string id, std::string type, std::shared_ptr<Block> block);
 
     /**
      * @brief Destroy the Object object

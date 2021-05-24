@@ -3,7 +3,7 @@
 using namespace std;
 using json = nlohmann::json;
 
-Object::Object(string id, string type, unique_ptr<Block> block)
+Object::Object(string id, string type, shared_ptr<Block> block)
     : id{id}, type{type} {
     this->block = move(block);
 }

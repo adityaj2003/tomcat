@@ -24,12 +24,12 @@ AABB::AABB(string id)
     this->autoAdjust = true;
 }
 
-void AABB::addAABB(unique_ptr<AABB> aabb) {
+void AABB::addAABB(shared_ptr<AABB> aabb) {
     this->aabbList.push_back(move(aabb));
     this->recalculateOverallBoundary();
 }
 
-void AABB::addConnection(unique_ptr<Connection> connection) {
+void AABB::addConnection(shared_ptr<Connection> connection) {
     this->connectionList.push_back(move(connection));
 }
 
@@ -43,15 +43,15 @@ Pos AABB::getTopLeft() { return this->topLeft; }
 
 Pos AABB::getBottomRight() { return this->bottomRight; }
 
-vector<unique_ptr<Block>>& AABB::getBlockList() { return (this->blockList); }
+vector<shared_ptr<Block>>& AABB::getBlockList() { return (this->blockList); }
 
-vector<unique_ptr<Entity>>& AABB::getEntityList() { return this->entityList; }
+vector<shared_ptr<Entity>>& AABB::getEntityList() { return this->entityList; }
 
-vector<unique_ptr<Object>>& AABB::getObjectList() { return this->objectList; }
+vector<shared_ptr<Object>>& AABB::getObjectList() { return this->objectList; }
 
-vector<unique_ptr<AABB>>& AABB::getAABBList() { return this->aabbList; }
+vector<shared_ptr<AABB>>& AABB::getAABBList() { return this->aabbList; }
 
-vector<unique_ptr<Connection>>& AABB::getConnectionList() {
+vector<shared_ptr<Connection>>& AABB::getConnectionList() {
     return this->connectionList;
 }
 
@@ -252,15 +252,15 @@ void AABB::setBottomRight(Pos& bottomRight) { this->bottomRight = bottomRight; }
 
 void AABB::setMaterial(string material) { this->material = material; };
 
-void AABB::addBlock(unique_ptr<Block> block) {
+void AABB::addBlock(shared_ptr<Block> block) {
     (this->blockList).push_back(move(block));
 }
 
-void AABB::addEntity(unique_ptr<Entity> entity) {
+void AABB::addEntity(shared_ptr<Entity> entity) {
     this->entityList.push_back(move(entity));
 }
 
-void AABB::addObject(unique_ptr<Object> object) {
+void AABB::addObject(shared_ptr<Object> object) {
     this->objectList.push_back(move(object));
 }
 
@@ -308,7 +308,7 @@ void AABB::generateBox(string material,
         for (int y = startY; y <= endY; y++) {
             for (int z = startZ; z <= endZ; z++) {
                 Pos pos(x, y, z);
-                auto curBlock = make_unique<Block>(material, pos);
+                auto curBlock = make_shared<Block>(material, pos);
                 this->addBlock(move(curBlock));
             }
         }
@@ -342,7 +342,7 @@ void AABB::addRandomBlocks(int n,
         int y = randY(gen);
         int z = randZ(gen);
         Pos pos(x, y, z);
-        auto curBlock = make_unique<Block>(material, pos);
+        auto curBlock = make_shared<Block>(material, pos);
         this->addBlock(move(curBlock));
         n--;
     }
@@ -362,11 +362,11 @@ void AABB::generateAllDoorsInAABB() {
         leftEdgeMid.shiftY(1);
         rightEdgeMid.shiftY(1);
 
-        auto topDoor = make_unique<Door>(topEdgeMid, false, false);
-        auto bottomDoor = make_unique<Door>(bottomEdgeMid, false, false);
-        auto leftDoor = make_unique<Door>(
+        auto topDoor = make_shared<Door>(topEdgeMid, false, false);
+        auto bottomDoor = make_shared<Door>(bottomEdgeMid, false, false);
+        auto leftDoor = make_shared<Door>(
             leftEdgeMid, false, false, "dark_oak_door", "east");
-        auto rightDoor = make_unique<Door>(
+        auto rightDoor = make_shared<Door>(
             rightEdgeMid, false, false, "dark_oak_door", "east");
 
         this->addBlock(move(topDoor));

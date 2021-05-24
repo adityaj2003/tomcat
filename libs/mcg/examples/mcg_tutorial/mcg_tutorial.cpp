@@ -40,8 +40,8 @@ class Room : public AABB {
         mt19937_64 gen; // A random number generator engine
         // We use the engine to get a random position on the floor
         Pos randomPos = this->getRandomPos(gen, 1, 1, 1, 2, 1, 1);
-        auto zombie = make_unique<Entity>("zombie", randomPos);
-        this->addEntity(move(zombie));
+        auto zombie = make_shared<Entity>("zombie", randomPos);
+        this->addEntity(zombie);
     }
 
     ~Room(){};
@@ -52,20 +52,20 @@ class TutorialWorld : public World {
   public:
     TutorialWorld() {
         Pos topLeft(1, 3, 1); // Top left for the first room
-        auto room1 = make_unique<Room>("room_1", topLeft);
+        auto room1 = make_shared<Room>("room_1", topLeft);
 
         // Create the second room in the same spot, then
         // shift the entire room by 5 block in the X axis
-        auto room2 = make_unique<Room>("room_2", topLeft);
+        auto room2 = make_shared<Room>("room_2", topLeft);
         room2->shiftX(5);
 
         // Add both to an AABB that we choose to call a house
         // "house" will auto resize it's own bounds anytime we
         // add an AABB to it's list of children.
-        auto house = make_unique<AABB>("house");
-        house->addAABB(move(room1));
-        house->addAABB(move(room2));
-        this->addAABB(move(house));
+        auto house = make_shared<AABB>("house");
+        house->addAABB(room1);
+        house->addAABB(room2);
+        this->addAABB(house);
     };
 
     ~TutorialWorld(){};

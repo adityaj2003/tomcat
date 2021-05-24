@@ -19,35 +19,35 @@ void World::setRandom(int seed) {
     this->gen = newGen;
 }
 
-vector<unique_ptr<AABB>>& World::getAABBList() { return (this->aabbList); }
+vector<shared_ptr<AABB>>& World::getAABBList() { return (this->aabbList); }
 
-vector<unique_ptr<Block>>& World::getBlockList() { return (this->blockList); }
+vector<shared_ptr<Block>>& World::getBlockList() { return (this->blockList); }
 
-vector<unique_ptr<Entity>>& World::getEntityList() { return this->entityList; }
+vector<shared_ptr<Entity>>& World::getEntityList() { return this->entityList; }
 
-vector<unique_ptr<Object>>& World::getObjectList() { return this->objectList; }
+vector<shared_ptr<Object>>& World::getObjectList() { return this->objectList; }
 
-vector<unique_ptr<Connection>>& World::getConnectionList() {
+vector<shared_ptr<Connection>>& World::getConnectionList() {
     return this->connectionList;
 }
 
-void World::addAABB(unique_ptr<AABB> aabb) {
+void World::addAABB(shared_ptr<AABB> aabb) {
     (this->aabbList).push_back(move(aabb));
 }
 
-void World::addBlock(unique_ptr<Block> block) {
+void World::addBlock(shared_ptr<Block> block) {
     (this->blockList).push_back(move(block));
 }
 
-void World::addEntity(unique_ptr<Entity> entity) {
+void World::addEntity(shared_ptr<Entity> entity) {
     this->entityList.push_back(move(entity));
 }
 
-void World::addObject(unique_ptr<Object> object) {
+void World::addObject(shared_ptr<Object> object) {
     this->objectList.push_back(move(object));
 }
 
-void World::addConnection(unique_ptr<Connection> connection) {
+void World::addConnection(shared_ptr<Connection> connection) {
     this->connectionList.push_back(move(connection));
 }
 

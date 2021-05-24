@@ -28,11 +28,11 @@ class AABB {
     bool isHollow;
     bool hasRoof;
     bool autoAdjust;
-    std::vector<std::unique_ptr<Block>> blockList;
-    std::vector<std::unique_ptr<Entity>> entityList;
-    std::vector<std::unique_ptr<Object>> objectList;
-    std::vector<std::unique_ptr<AABB>> aabbList;
-    std::vector<std::unique_ptr<Connection>> connectionList;
+    std::vector<std::shared_ptr<Block>> blockList;
+    std::vector<std::shared_ptr<Entity>> entityList;
+    std::vector<std::shared_ptr<Object>> objectList;
+    std::vector<std::shared_ptr<AABB>> aabbList;
+    std::vector<std::shared_ptr<Connection>> connectionList;
 
     void recalculateOverallBoundary();
 
@@ -76,43 +76,43 @@ class AABB {
 
     /**
      * @brief Get the block list specific to this AABB. Do not transfer
-     *        ownership  of any unique_ptr as it may cause scope issues.
+     *        ownership  of any shared_ptr as it may cause scope issues.
      *
      * @return The reference to the block list.
      */
-    std::vector<std::unique_ptr<Block>>& getBlockList();
+    std::vector<std::shared_ptr<Block>>& getBlockList();
 
     /**
      * @brief Get the entity list specific to this AABB. Do not transfer
-     *        ownership  of any unique_ptr as it may cause scope issues.
+     *        ownership  of any shared_ptr as it may cause scope issues.
      *
      * @return The reference to the entity list.
      */
-    std::vector<std::unique_ptr<Entity>>& getEntityList();
+    std::vector<std::shared_ptr<Entity>>& getEntityList();
 
     /**
      * @brief Get the object list specific to this AABB. Do not transfer
-     *        ownership  of any unique_ptr as it may cause scope issues.
+     *        ownership  of any shared_ptr as it may cause scope issues.
      *
      * @return The reference to the object list.
      */
-    std::vector<std::unique_ptr<Object>>& getObjectList();
+    std::vector<std::shared_ptr<Object>>& getObjectList();
 
     /**
      * @brief Gets the list of AABBs this AABB is the parent of. Do not transfer
-     *        ownership  of any unique_ptr as it may cause scope issues.
+     *        ownership  of any shared_ptr as it may cause scope issues.
      *
      * @return std::vector<AABB*>& Reference to the list of children AABBs.
      */
-    std::vector<std::unique_ptr<AABB>>& getAABBList();
+    std::vector<std::shared_ptr<AABB>>& getAABBList();
 
     /**
      * @brief Returns the Connection vector for this AABB. Do not transfer
-     *        ownership  of any unique_ptr as it may cause scope issues.
+     *        ownership  of any shared_ptr as it may cause scope issues.
      *
      * @return std::vector<Connection*>&  The connection list.
      */
-    std::vector<std::unique_ptr<Connection>>& getConnectionList();
+    std::vector<std::shared_ptr<Connection>>& getConnectionList();
 
     /**
      * @brief Get the midpoint X value calculated between
@@ -197,7 +197,7 @@ class AABB {
 
     /**
      * @brief Get a particular AABB contained by this AABB. The AABB can be
-     *        identified by its ID. A unique pointer already
+     *        identified by its ID. A shared pointer already
      *        owns this, so do not assign new ownership.
      *
      * @param id The id of the AABB to find.
@@ -234,7 +234,7 @@ class AABB {
      *
      * @param block Block to be added
      */
-    void addBlock(std::unique_ptr<Block> block);
+    void addBlock(std::shared_ptr<Block> block);
 
     /**
      * @brief Add a specific entity for this AABB to keep track of. Ideally this
@@ -243,7 +243,7 @@ class AABB {
      *
      * @param entity Entity to be added
      */
-    void addEntity(std::unique_ptr<Entity> entity);
+    void addEntity(std::shared_ptr<Entity> entity);
 
     /**
      * @brief Add a specific object for this AABB to keep track of. Ideally this
@@ -252,14 +252,14 @@ class AABB {
      *
      * @param object Object to be added
      */
-    void addObject(std::unique_ptr<Object> object);
+    void addObject(std::shared_ptr<Object> object);
 
     /**
      * @brief Adds an AABB that will be part of this AABB's child list.
      *
      * @param aabb The AABB to add.
      */
-    void addAABB(std::unique_ptr<AABB> aabb);
+    void addAABB(std::shared_ptr<AABB> aabb);
 
     /**
      * @brief Add an connection to the vector of connection held inside the
@@ -267,7 +267,7 @@ class AABB {
      *
      * @param connection The connection to add.
      */
-    void addConnection(std::unique_ptr<Connection> connection);
+    void addConnection(std::shared_ptr<Connection> connection);
 
     /**
      * @brief Checks to see if two AABBs overlap with each other (including
