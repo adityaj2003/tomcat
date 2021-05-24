@@ -256,8 +256,8 @@ void AABB::addBlock(shared_ptr<Block> block) {
     (this->blockList).push_back(move(block));
 }
 
-void AABB::addEntity(shared_ptr<Entity> entity) {
-    this->entityList.push_back(move(entity));
+void AABB::addEntity(Entity& entity) {
+    this->entityList.push_back(make_shared<Entity>(move(entity)));
 }
 
 void AABB::addObject(shared_ptr<Object> object) {

@@ -243,7 +243,7 @@ class AABB {
      *
      * @param entity Entity to be added
      */
-    void addEntity(std::shared_ptr<Entity> entity);
+    void addEntity(Entity& entity);
 
     /**
      * @brief Add a specific object for this AABB to keep track of. Ideally this

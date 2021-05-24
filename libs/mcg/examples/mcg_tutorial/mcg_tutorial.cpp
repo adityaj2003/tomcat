@@ -40,11 +40,9 @@ class Room : public AABB {
         mt19937_64 gen; // A random number generator engine
         // We use the engine to get a random position on the floor
         Pos randomPos = this->getRandomPos(gen, 1, 1, 1, 2, 1, 1);
-        auto zombie = make_shared<Entity>("zombie", randomPos);
+        auto zombie = Entity("zombie", randomPos);
         this->addEntity(zombie);
     }
-
-    ~Room(){};
 };
 
 class TutorialWorld : public World {
@@ -67,8 +65,6 @@ class TutorialWorld : public World {
         house->addAABB(room2);
         this->addAABB(house);
     };
-
-    ~TutorialWorld(){};
 };
 
 /**
