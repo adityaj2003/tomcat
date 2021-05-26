@@ -19,36 +19,36 @@ void World::setRandom(int seed) {
     this->gen = newGen;
 }
 
-vector<shared_ptr<AABB>>& World::getAABBList() { return (this->aabbList); }
+vector<shared_ptr<AABB>>& World::getAABBList() { return (this->aabbs); }
 
-vector<shared_ptr<Block>>& World::getBlockList() { return (this->blockList); }
+vector<shared_ptr<Block>>& World::getBlocks() { return (this->blocks); }
 
-vector<shared_ptr<Entity>>& World::getEntityList() { return this->entityList; }
+vector<shared_ptr<Entity>>& World::getEntities() { return this->entities; }
 
-vector<shared_ptr<Object>>& World::getObjectList() { return this->objectList; }
+vector<shared_ptr<Object>>& World::getObjects() { return this->objects; }
 
-vector<shared_ptr<Connection>>& World::getConnectionList() {
-    return this->connectionList;
+vector<shared_ptr<Connection>>& World::getConnections() {
+    return this->connections;
 }
 
 void World::addAABB(AABB& aabb) {
-    (this->aabbList).push_back(make_shared<AABB>(move(aabb)));
+    (this->aabbs).push_back(make_shared<AABB>(move(aabb)));
 }
 
 void World::addBlock(Block& block) {
-    (this->blockList).push_back(make_shared<Block>(move(block)));
+    (this->blocks).push_back(make_shared<Block>(move(block)));
 }
 
 void World::addEntity(Entity& entity) {
-    (this->entityList).push_back(make_shared<Entity>(move(entity)));
+    (this->entities).push_back(make_shared<Entity>(move(entity)));
 }
 
 void World::addObject(Object& object) {
-    (this->objectList).push_back(make_shared<Object>(move(object)));
+    (this->objects).push_back(make_shared<Object>(move(object)));
 }
 
 void World::addConnection(Connection& connection) {
-    (this->connectionList).push_back(make_shared<Connection>(move(connection)));
+    (this->connections).push_back(make_shared<Connection>(move(connection)));
 }
 
 string World::toLowLevelMapJSON() {
@@ -61,19 +61,19 @@ string World::toLowLevelMapJSON() {
     world_json["entities"] = entity_list;
 
     // Add AABBs to the JSON list
-    for (auto& aabbPtr : this->aabbList) {
+    for (auto& aabbPtr : this->aabbs) {
         (*aabbPtr).toLowLevelMapJSON(world_json);
     }
 
-    for (auto& blockPtr : this->getBlockList()) {
+    for (auto& blockPtr : this->getBlocks()) {
         (*blockPtr).toLowLevelMapJSON(world_json);
     }
 
-    for (auto& entityPtr : this->getEntityList()) {
+    for (auto& entityPtr : this->getEntities()) {
         (*entityPtr).toLowLevelMapJSON(world_json);
     }
 
-    for (auto& objectPtr : this->getObjectList()) {
+    for (auto& objectPtr : this->getObjects()) {
         (*objectPtr).toLowLevelMapJSON(world_json);
     }
 
@@ -94,23 +94,23 @@ string World::toSemanticMapJSON() {
     world_json["connections"] = connection_list;
 
     // Add AABBs to the JSON list
-    for (auto& aabbPtr : this->aabbList) {
+    for (auto& aabbPtr : this->aabbs) {
         (*aabbPtr).toSemanticMapJSON(world_json);
     }
 
-    for (auto& blockPtr : this->getBlockList()) {
+    for (auto& blockPtr : this->getBlocks()) {
         (*blockPtr).toSemanticMapJSON(world_json);
     }
 
-    for (auto& entityPtr : this->getEntityList()) {
+    for (auto& entityPtr : this->getEntities()) {
         (*entityPtr).toSemanticMapJSON(world_json);
     }
 
-    for (auto& objectPtr : this->getObjectList()) {
+    for (auto& objectPtr : this->getObjects()) {
         (*objectPtr).toSemanticMapJSON(world_json);
     }
 
-    for (auto& connectionPtr : this->getConnectionList()) {
+    for (auto& connectionPtr : this->getConnections()) {
         (*connectionPtr).toSemanticMapJSON(world_json);
     }
 

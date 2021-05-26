@@ -25,12 +25,12 @@ AABB::AABB(string id)
 }
 
 void AABB::addAABB(AABB& aabb) {
-    (this->aabbList).push_back(make_shared<AABB>(move(aabb)));
+    (this->aabbs).push_back(make_shared<AABB>(move(aabb)));
     this->recalculateOverallBoundary();
 }
 
 void AABB::addConnection(Connection& connection) {
-    (this->connectionList).push_back(make_shared<Connection>(move(connection)));
+    (this->connections).push_back(make_shared<Connection>(move(connection)));
 }
 
 string AABB::getID() { return this->id; }
@@ -43,20 +43,20 @@ Pos AABB::getTopLeft() { return this->topLeft; }
 
 Pos AABB::getBottomRight() { return this->bottomRight; }
 
-vector<shared_ptr<Block>>& AABB::getBlockList() { return (this->blockList); }
+vector<shared_ptr<Block>>& AABB::getBlocks() { return (this->blocks); }
 
-vector<shared_ptr<Entity>>& AABB::getEntityList() { return this->entityList; }
+vector<shared_ptr<Entity>>& AABB::getEntities() { return this->entities; }
 
-vector<shared_ptr<Object>>& AABB::getObjectList() { return this->objectList; }
+vector<shared_ptr<Object>>& AABB::getObjects() { return this->objects; }
 
-vector<shared_ptr<AABB>>& AABB::getAABBList() { return this->aabbList; }
+vector<shared_ptr<AABB>>& AABB::getAABBList() { return this->aabbs; }
 
-vector<shared_ptr<Connection>>& AABB::getConnectionList() {
-    return this->connectionList;
+vector<shared_ptr<Connection>>& AABB::getConnections() {
+    return this->connections;
 }
 
 AABB* AABB::getSubAABB(string id) {
-    for (auto& aabb : this->aabbList) {
+    for (auto& aabb : this->aabbs) {
         if (strcmp((*aabb).getID().c_str(), id.c_str()) == 0) {
             return aabb.get();
         }
@@ -99,92 +99,92 @@ void AABB::shiftX(int shift) {
     this->topLeft.shiftX(shift);
     this->bottomRight.shiftX(shift);
 
-    for (auto& aabbPtr : this->aabbList) {
+    for (auto& aabbPtr : this->aabbs) {
         aabbPtr->shiftX(shift);
     }
 
-    for (auto& blockPtr : this->getBlockList()) {
+    for (auto& blockPtr : this->getBlocks()) {
         blockPtr->shiftX(shift);
     }
 
-    for (auto& entityPtr : this->getEntityList()) {
+    for (auto& entityPtr : this->getEntities()) {
         entityPtr->shiftX(shift);
     }
 
-    for (auto& objectPtr : this->getObjectList()) {
+    for (auto& objectPtr : this->getObjects()) {
         objectPtr->shiftX(shift);
     }
 
-    this->connectionList.clear();
+    this->connections.clear();
 }
 
 void AABB::shiftY(int shift) {
     this->topLeft.shiftY(shift);
     this->bottomRight.shiftY(shift);
 
-    for (auto& aabbPtr : this->aabbList) {
+    for (auto& aabbPtr : this->aabbs) {
         aabbPtr->shiftY(shift);
     }
 
-    for (auto& blockPtr : this->getBlockList()) {
+    for (auto& blockPtr : this->getBlocks()) {
         blockPtr->shiftY(shift);
     }
 
-    for (auto& entityPtr : this->getEntityList()) {
+    for (auto& entityPtr : this->getEntities()) {
         entityPtr->shiftY(shift);
     }
 
-    for (auto& objectPtr : this->getObjectList()) {
+    for (auto& objectPtr : this->getObjects()) {
         objectPtr->shiftY(shift);
     }
 
-    this->connectionList.clear();
+    this->connections.clear();
 }
 
 void AABB::shiftZ(int shift) {
     this->topLeft.shiftZ(shift);
     this->bottomRight.shiftZ(shift);
 
-    for (auto& aabbPtr : this->aabbList) {
+    for (auto& aabbPtr : this->aabbs) {
         aabbPtr->shiftZ(shift);
     }
 
-    for (auto& blockPtr : this->getBlockList()) {
+    for (auto& blockPtr : this->getBlocks()) {
         blockPtr->shiftZ(shift);
     }
 
-    for (auto& entityPtr : this->getEntityList()) {
+    for (auto& entityPtr : this->getEntities()) {
         entityPtr->shiftZ(shift);
     }
 
-    for (auto& objectPtr : this->getObjectList()) {
+    for (auto& objectPtr : this->getObjects()) {
         objectPtr->shiftZ(shift);
     }
 
-    this->connectionList.clear();
+    this->connections.clear();
 }
 
 void AABB::shift(int shiftX, int shiftY, int shiftZ) {
     this->topLeft.shift(shiftX, shiftY, shiftZ);
     this->bottomRight.shift(shiftX, shiftY, shiftZ);
 
-    for (auto& aabbPtr : this->aabbList) {
+    for (auto& aabbPtr : this->aabbs) {
         aabbPtr->shift(shiftX, shiftY, shiftZ);
     }
 
-    for (auto& blockPtr : this->getBlockList()) {
+    for (auto& blockPtr : this->getBlocks()) {
         blockPtr->shift(shiftX, shiftY, shiftZ);
     }
 
-    for (auto& entityPtr : this->getEntityList()) {
+    for (auto& entityPtr : this->getEntities()) {
         entityPtr->shift(shiftX, shiftY, shiftZ);
     }
 
-    for (auto& objectPtr : this->getObjectList()) {
+    for (auto& objectPtr : this->getObjects()) {
         objectPtr->shift(shiftX, shiftY, shiftZ);
     }
 
-    this->connectionList.clear();
+    this->connections.clear();
 }
 
 Pos AABB::getRandomPos(mt19937_64& gen,
@@ -253,15 +253,15 @@ void AABB::setBottomRight(Pos& bottomRight) { this->bottomRight = bottomRight; }
 void AABB::setMaterial(string material) { this->material = material; };
 
 void AABB::addBlock(Block& block) {
-    (this->blockList).push_back(make_shared<Block>(move(block)));
+    (this->blocks).push_back(make_shared<Block>(move(block)));
 }
 
 void AABB::addEntity(Entity& entity) {
-    (this->entityList).push_back(make_shared<Entity>(move(entity)));
+    (this->entities).push_back(make_shared<Entity>(move(entity)));
 }
 
 void AABB::addObject(Object& object) {
-    (this->objectList).push_back(make_shared<Object>(move(object)));
+    (this->objects).push_back(make_shared<Object>(move(object)));
 }
 
 bool AABB::intersects(AABB& other) {
@@ -375,7 +375,7 @@ void AABB::generateAllDoorsInAABB() {
         this->addBlock(rightDoor);
     }
 
-    for (auto& aabb : this->aabbList) {
+    for (auto& aabb : this->aabbs) {
         aabb->generateAllDoorsInAABB();
     }
 }
@@ -388,7 +388,7 @@ void AABB::recalculateOverallBoundary() {
         int maxX, maxY, maxZ;
         bool isFirst = true;
 
-        for (auto& aabb : this->aabbList) {
+        for (auto& aabb : this->aabbs) {
 
             Pos topLeft = (*aabb).getTopLeft();
             int x1 = topLeft.getX(), y1 = topLeft.getY(), z1 = topLeft.getZ();
@@ -449,7 +449,7 @@ void AABB::toSemanticMapJSON(json& json_base) {
     aabb_json["material"] = this->getMaterial();
 
     vector<string> child_locations;
-    for (auto& aabbPtr : this->aabbList) {
+    for (auto& aabbPtr : this->aabbs) {
         (*aabbPtr).toSemanticMapJSON(json_base);
         child_locations.push_back(aabbPtr->getID());
     }
@@ -457,19 +457,19 @@ void AABB::toSemanticMapJSON(json& json_base) {
     aabb_json["child_locations"] = child_locations;
     json_base["locations"].push_back(aabb_json);
 
-    for (auto& blockPtr : this->getBlockList()) {
+    for (auto& blockPtr : this->getBlocks()) {
         (*blockPtr).toSemanticMapJSON(json_base);
     }
 
-    for (auto& entityPtr : this->getEntityList()) {
+    for (auto& entityPtr : this->getEntities()) {
         (*entityPtr).toSemanticMapJSON(json_base);
     }
 
-    for (auto& objectPtr : this->getObjectList()) {
+    for (auto& objectPtr : this->getObjects()) {
         (*objectPtr).toSemanticMapJSON(json_base);
     }
 
-    for (auto& connectionPtr : this->getConnectionList()) {
+    for (auto& connectionPtr : this->getConnections()) {
         (*connectionPtr).toSemanticMapJSON(json_base);
     }
 }
@@ -511,19 +511,19 @@ void AABB::toLowLevelMapJSON(json& json_base) {
         }
     }
 
-    for (auto& aabbPtr : this->aabbList) {
+    for (auto& aabbPtr : this->aabbs) {
         (*aabbPtr).toLowLevelMapJSON(json_base);
     }
 
-    for (auto& blockPtr : this->getBlockList()) {
+    for (auto& blockPtr : this->getBlocks()) {
         (*blockPtr).toLowLevelMapJSON(json_base);
     }
 
-    for (auto& entityPtr : this->getEntityList()) {
+    for (auto& entityPtr : this->getEntities()) {
         (*entityPtr).toLowLevelMapJSON(json_base);
     }
 
-    for (auto& objectPtr : this->getObjectList()) {
+    for (auto& objectPtr : this->getObjects()) {
         (*objectPtr).toLowLevelMapJSON(json_base);
     }
 }

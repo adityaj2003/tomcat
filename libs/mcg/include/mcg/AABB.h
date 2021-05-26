@@ -28,11 +28,11 @@ class AABB {
     bool isHollow;
     bool hasRoof;
     bool autoAdjust;
-    std::vector<std::shared_ptr<Block>> blockList;
-    std::vector<std::shared_ptr<Entity>> entityList;
-    std::vector<std::shared_ptr<Object>> objectList;
-    std::vector<std::shared_ptr<AABB>> aabbList;
-    std::vector<std::shared_ptr<Connection>> connectionList;
+    std::vector<std::shared_ptr<Block>> blocks;
+    std::vector<std::shared_ptr<Entity>> entities;
+    std::vector<std::shared_ptr<Object>> objects;
+    std::vector<std::shared_ptr<AABB>> aabbs;
+    std::vector<std::shared_ptr<Connection>> connections;
 
     void recalculateOverallBoundary();
 
@@ -80,7 +80,7 @@ class AABB {
      *
      * @return The reference to the block list.
      */
-    std::vector<std::shared_ptr<Block>>& getBlockList();
+    std::vector<std::shared_ptr<Block>>& getBlocks();
 
     /**
      * @brief Get the entity list specific to this AABB. Do not transfer
@@ -88,7 +88,7 @@ class AABB {
      *
      * @return The reference to the entity list.
      */
-    std::vector<std::shared_ptr<Entity>>& getEntityList();
+    std::vector<std::shared_ptr<Entity>>& getEntities();
 
     /**
      * @brief Get the object list specific to this AABB. Do not transfer
@@ -96,7 +96,7 @@ class AABB {
      *
      * @return The reference to the object list.
      */
-    std::vector<std::shared_ptr<Object>>& getObjectList();
+    std::vector<std::shared_ptr<Object>>& getObjects();
 
     /**
      * @brief Gets the list of AABBs this AABB is the parent of. Do not transfer
@@ -112,7 +112,7 @@ class AABB {
      *
      * @return std::vector<Connection*>&  The connection list.
      */
-    std::vector<std::shared_ptr<Connection>>& getConnectionList();
+    std::vector<std::shared_ptr<Connection>>& getConnections();
 
     /**
      * @brief Get the midpoint X value calculated between
