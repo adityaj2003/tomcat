@@ -25,12 +25,12 @@ AABB::AABB(string id)
 }
 
 void AABB::addAABB(AABB& aabb) {
-    (this->aabbs).push_back(make_shared<AABB>(move(aabb)));
+    (this->aabbs).push_back(make_shared<AABB>(aabb));
     this->recalculateOverallBoundary();
 }
 
 void AABB::addConnection(Connection& connection) {
-    (this->connections).push_back(make_shared<Connection>(move(connection)));
+    (this->connections).push_back(make_shared<Connection>(connection));
 }
 
 string AABB::getID() { return this->id; }
@@ -253,15 +253,15 @@ void AABB::setBottomRight(Pos& bottomRight) { this->bottomRight = bottomRight; }
 void AABB::setMaterial(string material) { this->material = material; };
 
 void AABB::addBlock(Block& block) {
-    (this->blocks).push_back(make_shared<Block>(move(block)));
+    (this->blocks).push_back(make_shared<Block>(block));
 }
 
 void AABB::addEntity(Entity& entity) {
-    (this->entities).push_back(make_shared<Entity>(move(entity)));
+    (this->entities).push_back(make_shared<Entity>(entity));
 }
 
 void AABB::addObject(Object& object) {
-    (this->objects).push_back(make_shared<Object>(move(object)));
+    (this->objects).push_back(make_shared<Object>(object));
 }
 
 bool AABB::intersects(AABB& other) {
@@ -449,29 +449,30 @@ void AABB::toSemanticMapJSON(json& json_base) {
     aabb_json["material"] = this->getMaterial();
 
     vector<string> child_locations;
-    for (auto& aabbPtr : this->aabbs) {
-        (*aabbPtr).toSemanticMapJSON(json_base);
-        child_locations.push_back(aabbPtr->getID());
+    for (auto& aabb : this->aabbs) {
+        aabb->toSemanticMapJSON(json_base);
+        child_locations.push_back(aabb->getID());
     }
 
     aabb_json["child_locations"] = child_locations;
     json_base["locations"].push_back(aabb_json);
 
-    for (auto& blockPtr : this->getBlocks()) {
-        (*blockPtr).toSemanticMapJSON(json_base);
+    for (auto& block : this->getBlocks()) {
+        block->toSemanticMapJSON(json_base);
     }
 
-    for (auto& entityPtr : this->getEntities()) {
-        (*entityPtr).toSemanticMapJSON(json_base);
+    for (auto& entity : this->getEntities()) {
+        entity->toSemanticMapJSON(json_base);
     }
 
-    for (auto& objectPtr : this->getObjects()) {
-        (*objectPtr).toSemanticMapJSON(json_base);
+    for (auto& object : this->getObjects()) {
+        object->toSemanticMapJSON(json_base);
     }
 
-    for (auto& connectionPtr : this->getConnections()) {
-        (*connectionPtr).toSemanticMapJSON(json_base);
+    for (auto& connection : this->getConnections()) {
+        connection->toSemanticMapJSON(json_base);
     }
+
 }
 
 void AABB::toLowLevelMapJSON(json& json_base) {
