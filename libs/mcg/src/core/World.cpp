@@ -31,24 +31,24 @@ vector<shared_ptr<Connection>>& World::getConnectionList() {
     return this->connectionList;
 }
 
-void World::addAABB(shared_ptr<AABB> aabb) {
-    (this->aabbList).push_back(move(aabb));
+void World::addAABB(AABB& aabb) {
+    (this->aabbList).push_back(make_shared<AABB>(move(aabb)));
 }
 
-void World::addBlock(shared_ptr<Block> block) {
-    (this->blockList).push_back(move(block));
+void World::addBlock(Block& block) {
+    (this->blockList).push_back(make_shared<Block>(move(block)));
 }
 
-void World::addEntity(shared_ptr<Entity> entity) {
-    this->entityList.push_back(move(entity));
+void World::addEntity(Entity& entity) {
+    (this->entityList).push_back(make_shared<Entity>(move(entity)));
 }
 
-void World::addObject(shared_ptr<Object> object) {
-    this->objectList.push_back(move(object));
+void World::addObject(Object& object) {
+    (this->objectList).push_back(make_shared<Object>(move(object)));
 }
 
-void World::addConnection(shared_ptr<Connection> connection) {
-    this->connectionList.push_back(move(connection));
+void World::addConnection(Connection& connection) {
+    (this->connectionList).push_back(make_shared<Connection>(move(connection)));
 }
 
 string World::toLowLevelMapJSON() {

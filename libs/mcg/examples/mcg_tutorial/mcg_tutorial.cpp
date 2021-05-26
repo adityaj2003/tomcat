@@ -50,19 +50,19 @@ class TutorialWorld : public World {
   public:
     TutorialWorld() {
         Pos topLeft(1, 3, 1); // Top left for the first room
-        auto room1 = make_shared<Room>("room_1", topLeft);
+        auto room1 = Room("room_1", topLeft);
 
         // Create the second room in the same spot, then
         // shift the entire room by 5 block in the X axis
-        auto room2 = make_shared<Room>("room_2", topLeft);
-        room2->shiftX(5);
+        auto room2 = Room("room_2", topLeft);
+        room2.shiftX(5);
 
         // Add both to an AABB that we choose to call a house
         // "house" will auto resize it's own bounds anytime we
         // add an AABB to it's list of children.
-        auto house = make_shared<AABB>("house");
-        house->addAABB(room1);
-        house->addAABB(room2);
+        auto house = AABB("house");
+        house.addAABB(room1);
+        house.addAABB(room2);
         this->addAABB(house);
     };
 };

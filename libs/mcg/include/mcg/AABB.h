@@ -178,12 +178,12 @@ class AABB {
      * @return Pos The random position
      */
     Pos getRandomPos(std::mt19937_64& gen,
-                             int offsetPosX = 0,
-                             int offsetNegX = 0,
-                             int offsetPosY = 0,
-                             int offsetNegY = 0,
-                             int offsetPosZ = 0,
-                             int offsetNegZ = 0);
+                     int offsetPosX = 0,
+                     int offsetNegX = 0,
+                     int offsetPosY = 0,
+                     int offsetNegY = 0,
+                     int offsetPosZ = 0,
+                     int offsetNegZ = 0);
 
     /**
      * @brief Get a list of the positions of the edge midpoints for this AABB.
@@ -234,7 +234,7 @@ class AABB {
      *
      * @param block Block to be added
      */
-    void addBlock(std::shared_ptr<Block> block);
+    void addBlock(Block& block);
 
     /**
      * @brief Add a specific entity for this AABB to keep track of. Ideally this
@@ -252,14 +252,14 @@ class AABB {
      *
      * @param object Object to be added
      */
-    void addObject(std::shared_ptr<Object> object);
+    void addObject(Object& object);
 
     /**
      * @brief Adds an AABB that will be part of this AABB's child list.
      *
      * @param aabb The AABB to add.
      */
-    void addAABB(std::shared_ptr<AABB> aabb);
+    void addAABB(AABB& aabb);
 
     /**
      * @brief Add an connection to the vector of connection held inside the
@@ -267,7 +267,7 @@ class AABB {
      *
      * @param connection The connection to add.
      */
-    void addConnection(std::shared_ptr<Connection> connection);
+    void addConnection(Connection& connection);
 
     /**
      * @brief Checks to see if two AABBs overlap with each other (including
@@ -298,12 +298,12 @@ class AABB {
      *        Defaults to 0
      */
     void generateBox(std::string material,
-                             int offsetPosX = 0,
-                             int offsetNegX = 0,
-                             int offsetPosY = 0,
-                             int offsetNegY = 0,
-                             int offsetPosZ = 0,
-                             int offsetNegZ = 0);
+                     int offsetPosX = 0,
+                     int offsetNegX = 0,
+                     int offsetPosY = 0,
+                     int offsetNegY = 0,
+                     int offsetPosZ = 0,
+                     int offsetNegZ = 0);
 
     /**
      * @brief Add n random blocks of the given type and material inside the AABB
@@ -326,14 +326,14 @@ class AABB {
      *        Defaults to 0
      */
     void addRandomBlocks(int n,
-                                 std::string material,
-                                 std::mt19937_64& gen,
-                                 int offsetPosX = 0,
-                                 int offsetNegX = 0,
-                                 int offsetPosY = 0,
-                                 int offsetNegY = 0,
-                                 int offsetPosZ = 0,
-                                 int offsetNegZ = 0);
+                         std::string material,
+                         std::mt19937_64& gen,
+                         int offsetPosX = 0,
+                         int offsetNegX = 0,
+                         int offsetPosY = 0,
+                         int offsetNegY = 0,
+                         int offsetPosZ = 0,
+                         int offsetNegZ = 0);
 
     /**
      * @brief Generate 4 doors for the AABB at the midpoint.
@@ -342,31 +342,34 @@ class AABB {
 
     /**
      * @brief Translate the AABB by the given amount in the X axis
-     * 
+     *
      * @param shift The amount to shift by which may be positive or negative
      */
     void shiftX(int shift);
 
-        /**
+    /**
      * @brief Translate the AABB by the given amount in the Y axis
-     * 
+     *
      * @param shift The amount to shift by which may be positive or negative
      */
     void shiftY(int shift);
 
-        /**
+    /**
      * @brief Translate the AABB by the given amount in the Z axis
-     * 
+     *
      * @param shift The amount to shift by which may be positive or negative
      */
     void shiftZ(int shift);
 
     /**
      * @brief Translates the AABB by the given amounts in the X, Y and Z axes
-     * 
-     * @param shiftX The amount to shift by in X which may be positive or negative
-     * @param shiftY The amount to shift by in Y which may be positive or negative
-     * @param shiftZ The amount to shift by in Z which may be positive or negative
+     *
+     * @param shiftX The amount to shift by in X which may be positive or
+     * negative
+     * @param shiftY The amount to shift by in Y which may be positive or
+     * negative
+     * @param shiftZ The amount to shift by in Z which may be positive or
+     * negative
      */
     void shift(int shiftX, int shiftY, int shiftZ);
 
@@ -417,15 +420,15 @@ class AABB {
     /**
      * @brief Construct a new AABB object. Use this contructor when you know the
      *        top left and bottom right positions will change in the future.
-     *        Here, since the autoAdjust defaults to true and the base material is
-     *        "blank", it is effectively a blank canvas. It will resize when children
-     *        AABB are added to it, and since it's base material is blank, the
-     *        WorldBuilder java class won't place anything at locations marked with a
-     *        material of type "blank." All of this can of course be achieved with the
-     *        other constructor, but this one makes the process more convenient.
+     *        Here, since the autoAdjust defaults to true and the base material
+     * is "blank", it is effectively a blank canvas. It will resize when
+     * children AABB are added to it, and since it's base material is blank, the
+     *        WorldBuilder java class won't place anything at locations marked
+     * with a material of type "blank." All of this can of course be achieved
+     * with the other constructor, but this one makes the process more
+     * convenient.
      *
      * @param id The id associated with this AABB
      */
     AABB(std::string id);
-
 };

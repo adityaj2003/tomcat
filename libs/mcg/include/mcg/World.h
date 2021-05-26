@@ -67,28 +67,28 @@ class World {
      *
      * @param aabb The AABB to add.
      */
-    void addAABB(std::shared_ptr<AABB> aabb);
+    void addAABB(AABB& aabb);
 
     /**
      * @brief Add an Entity for this world to keep track of.
      *
      * @param entity The Entity object.
      */
-    void addEntity(std::shared_ptr<Entity> entity);
+    void addEntity(Entity& entity);
 
     /**
      * @brief Add a Block to the vector of Block held inside the world.
      *
      * @param block The Block to add.
      */
-    void addBlock(std::shared_ptr<Block> block);
+    void addBlock(Block& block);
 
     /**
      * @brief Add an object to the vector of object held inside the world.
      *
      * @param object The object to add.
      */
-    void addObject(std::shared_ptr<Object> object);
+    void addObject(Object& object);
 
     /**
      * @brief Add an connection to the vector of connection held inside the
@@ -96,7 +96,7 @@ class World {
      *
      * @param connection The connection to add.
      */
-    void addConnection(std::shared_ptr<Connection> connection);
+    void addConnection(Connection& connection);
 
     /**
      * @brief Converts the world into its alternate JSON representation with
