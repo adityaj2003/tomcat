@@ -3,7 +3,7 @@
 
 class AudioChunkPreprocessor{
 	public:
-		int num_participants;
+		int num_participants = 0;
 		std::vector<std::vector<std::vector<int16_t>>> audio_chunks;
 		std::vector<std::string> participant_ids;
 		std::string participant_audio_path;

@@ -16,7 +16,8 @@ namespace websocket = beast::websocket; // from <boost/beast/websocket.hpp>
 namespace net = boost::asio;            // from <boost/asio.hpp>
 using tcp = boost::asio::ip::tcp;       // from <boost/asio/ip/tcp.hpp>
 
-void run_session(std::vector<std::vector<int16_t>>, std::string);
+using namespace std;
+void run_session(vector<vector<int16_t>>, string);
 
 int main(int argc, char** argv)
 {
@@ -24,11 +25,11 @@ int main(int argc, char** argv)
     AudioChunkPreprocessor acp("./audio");
 
     // Create thread array
-    std::vector<std::thread> thread_list();
-
+    vector<thread> thread_list;
+    
     // Initilize threads 
     for(int i=0; i<acp.num_participants;i++){
-	thread_list.push_back(std::thread(run_session, acp.audio_chunks[i], acp.participant_ids[i]));
+	thread_list.push_back(thread(run_session, acp.audio_chunks[i], acp.participant_ids[i]));
     } 
 
     // Join threads 
@@ -41,11 +42,10 @@ int main(int argc, char** argv)
 }
 
 void run_session(std::vector<std::vector<int16_t>> audio_chunks, std::string participant_id){
-	int sample_rate = 44100;
+	int sample_rate = 48000;
 	int chunk_size = 4096;
-	float chunks_per_second = sample_rate/chunk_size;
-	float seconds_interval = 1.0/chunks_per_second;
-
+	double chunks_per_second = (double)sample_rate/(double)chunk_size;
+	double seconds_interval = 1.0/(double)chunks_per_second;
 	try{
 		// The io_context is required for all I/O
 		net::io_context ioc;
@@ -71,15 +71,23 @@ void run_session(std::vector<std::vector<int16_t>> audio_chunks, std::string par
 
 		// Perform the websocket handshake
 		ws.handshake("localhost", "/?sampleRate=48000&id=test");
-
+		
 		// Send the message
+		auto start = std::chrono::high_resolution_clock::now();
 		for(int i=0;i<audio_chunks.size();i++){
-			//std::cout << "NEW CHUNK" << std::endl;
 			ws.binary(true);
 			ws.write(net::buffer(audio_chunks[i]));
-			std::this_thread::sleep_for(std::chrono::duration<float>(seconds_interval));
+		
+			if(i != audio_chunks.size()-1){	
+				// Sleep
+				auto a = chrono::high_resolution_clock::now();
+				while ((chrono::high_resolution_clock::now() -a) < chrono::duration<double>(seconds_interval) ) continue;
+			}
 		}
-
+		auto stop = std::chrono::high_resolution_clock::now();
+		auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop-start);
+		
+		std::cout << duration.count() << std::endl;
 		// Close the WebSocket connection
 		ws.close(websocket::close_code::normal);
 

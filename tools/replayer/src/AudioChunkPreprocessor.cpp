@@ -40,6 +40,7 @@ void AudioChunkPreprocessor::create_audio_chunks(){
 
 		// Add participant chunks to AudioChunkPreprocessor
 		this->audio_chunks.push_back(chunks);
+		this->participant_ids.push_back("test");
 	}	
 }
 
