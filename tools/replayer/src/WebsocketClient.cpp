@@ -9,6 +9,8 @@
 #include <chrono>
 
 #include "AudioChunkPreprocessor.h"
+#include "MetadataPreprocessor.h"
+#include "Mosquitto.h"
 
 namespace beast = boost::beast;         // from <boost/beast.hpp>
 namespace http = beast::http;           // from <boost/beast/http.hpp>
@@ -22,16 +24,29 @@ void run_session(vector<vector<int16_t>>, string);
 int main(int argc, char** argv)
 {
     // Preprocess audio chunks
-    AudioChunkPreprocessor acp("./trials/TRIAL1");
+    AudioChunkPreprocessor acp(argv[1]);
 
     // Preprocess metadata files
-    //MetadataPreprocessor mdp("./metadata");
-    
+    MetadataPreprocessor mdp(argv[1]);
+ 
     // Create thread array
     vector<thread> thread_list;
     
-//    system("python tools/Playback.py study-2_pilot-2_2021.02_HSRData_TrialMessages_Trial-Competency_Team-TM000112_Member-na_CondBtwn-2_CondWin-na_Vers-1 &");
+    // Initialize mosquitto 
+    MosquittoListener mqtt_client;
+    mqtt_client.connect("0.0.0.0", 1883, 1000, 1000, 1000);
+    mqtt_client.subscribe("#");
+    mqtt_client.set_max_seconds_without_messages(2147483647); // Max Long value
+    thread mqtt_thread = thread([&] { mqtt_client.loop(); });
+    mqtt_client.start_local = chrono::system_clock::now();
+
     
+    // Start metadata playback
+/*    thread playback_thread = thread([&] {
+	    string command = "python tools/Playback.py " + mdp.metadata_filename + "_modified"; 
+	    system(command.c_str());
+    });
+*/
     // Initilize threads 
     for(int i=0; i<acp.num_participants;i++){
 	thread_list.push_back(thread(run_session, acp.audio_chunks[i], acp.participant_ids[i]));
@@ -42,7 +57,10 @@ int main(int argc, char** argv)
 	thread_list[i].join();
     } 
 
-    
+    mqtt_client.close();
+    mqtt_thread.join();
+
+  //  playback_thread.join();    
     return EXIT_SUCCESS;
 }
 
@@ -75,7 +93,7 @@ void run_session(vector<vector<int16_t>> audio_chunks, string participant_id){
 		    }));
 
 		// Perform the websocket handshake
-		ws.handshake("localhost", "/?sampleRate=48000&id=" + participant_id);
+		ws.handshake("0.0.0.0", "/?sampleRate=48000&id=" + participant_id);
 		
 		// Send the message
 		auto start = chrono::high_resolution_clock::now();

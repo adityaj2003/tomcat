@@ -10,6 +10,12 @@ using namespace std;
 
 AudioChunkPreprocessor::AudioChunkPreprocessor(string trial_path){
 	this->trial_path = trial_path;
+
+	// Remove _raw files
+	string command = "rm " + trial_path + "/*_raw"; 
+	system(command.c_str());
+	
+	// Process audio chunks
 	this->get_audio_file_data();
 	this->convert_audio_files();
 	this->create_audio_chunks();
@@ -23,7 +29,7 @@ AudioChunkPreprocessor::~AudioChunkPreprocessor(){
 void AudioChunkPreprocessor::get_audio_file_data(){	
 	for (const auto & entry : filesystem::directory_iterator(this->trial_path)){
 		std::string filename = entry.path();
-		
+			
 		// Check file extension
 		size_t i = filename.rfind(".wav", filename.length());
 		if(i != string::npos){
@@ -31,10 +37,10 @@ void AudioChunkPreprocessor::get_audio_file_data(){
 			this->audio_filenames.push_back(filename);
 
 			// Push back participant id
-			regex rgx(".*Member(.*?)_.*");
+			regex rgx(".*Member-(.*?)_.*");
 			smatch matches;
 			regex_search(filename, matches, rgx);
-			this->participant_ids.push_back(matches[0].str());
+			this->participant_ids.push_back(matches[1].str());
 		}
 	}
 }
@@ -44,6 +50,7 @@ void AudioChunkPreprocessor::get_audio_file_data(){
 void AudioChunkPreprocessor::convert_audio_files(){
 	// Convert files
 	for(int i=0; i<audio_filenames.size();i++){
+		std::cout << audio_filenames[i] << std::endl;
 		string command = "ffmpeg -i " + audio_filenames[i] + " -f s16le -acodec pcm_s16le " + audio_filenames[i] + "_raw";
 		system(command.c_str());
 	}

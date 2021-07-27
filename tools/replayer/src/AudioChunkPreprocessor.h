@@ -9,7 +9,7 @@ class AudioChunkPreprocessor{
 		std::string trial_path;
 		std::vector<std::string> audio_filenames;
 		std::vector<std::string> participant_ids;
-		
+	
 		AudioChunkPreprocessor(std::string trial_path);
 		~AudioChunkPreprocessor();	
 
