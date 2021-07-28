@@ -19,9 +19,10 @@ class observation:
 
     def __init__(self, observation):
         self.timestamp = observation.get("@timestamp")
-        self.message = json.dumps(observation) #observation.get("message")
-        self.topic = observation.get("topic")
-        self.timeObj = datetime.strptime(self.timestamp,"%Y-%m-%dT%H:%M:%S.%fZ")
+        if self.timestamp:
+            self.message = json.dumps(observation) #observation.get("message")
+            self.topic = observation.get("topic")
+            self.timeObj = datetime.strptime(self.timestamp,"%Y-%m-%dT%H:%M:%S.%fZ")
 
     def toJSON(self):
         return json.dumps(self, default=lambda o: o.__dict__,
@@ -65,7 +66,7 @@ class PlayBack:
     def __init__(self, file):
         #Generate MQTT Client
         self.mqttc = mqtt.Client("Psi-Coach Agent", True, None)
-        self.mqttc.connect("localhost", 1883, 600)
+        self.mqttc.connect("0.0.0.0", 1883, 600)
         self.dataset = []
         with open(file) as json_file:
             line = json_file.readline()
@@ -74,7 +75,7 @@ class PlayBack:
                     break
                 self.dataset.append(observation(json.loads(line)))
                 line = json_file.readline()
-        data_sorted = sorted(self.dataset, key=attrgetter('timeObj'))
+        data_sorted = sorted(self.dataset[1:], key=attrgetter('timeObj'))
         #mission_only = self.cut_pre_mission_msgs(data_sorted)
         self.dataset = data_sorted #mission_only
         self.start()
