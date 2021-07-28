@@ -98,7 +98,6 @@ int main(int argc, char** argv)
 }
 
 void run_session(vector<vector<int16_t>> audio_chunks, string participant_id, int sample_rate){
-        std::cout << sample_rate << std::endl;
 	int chunk_size = 4096;
 	double chunks_per_second = (double)sample_rate/(double)chunk_size;
 	double seconds_interval = 1.0/(double)chunks_per_second;

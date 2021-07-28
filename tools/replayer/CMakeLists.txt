@@ -15,4 +15,5 @@ add_executable(replayer src/WebsocketClient.cpp src/AudioChunkPreprocessor.cpp s
 
 target_link_libraries(replayer nlohmann_json::nlohmann_json ${Boost_LIBRARIES} ${Mosquitto_LIBRARIES} -pthread)
 
+file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/trials)
 file(COPY tools/ DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/tools/)
