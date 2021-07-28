@@ -39,7 +39,8 @@ void MetadataPreprocessor::remove_asr_messages(){
 	string pattern2 = "!/\"topic\": \"agent\\/asr\\/intermediate\"/";
 	string pattern3 = "!/\"topic\": \"agent\\/asr\\/final\"/";
 	string pattern4 = "!/\"topic\": \"agent\\/dialog\"/";
-	string command =  "awk '" + pattern1  + " && " +  pattern2 + " && " + pattern3 + " && " + pattern4 + "' " + this->metadata_filename + " > " + this->metadata_filename + "_modified";
+	string pattern5 = "!/\"topic\":\"agent\\/asr\\/metadata\"/";
+	string command =  "awk '" + pattern1  + " && " +  pattern2 + " && " + pattern3 + " && " + pattern4 + " && " + pattern5 +  "' " + this->metadata_filename + " > " + this->metadata_filename + "_modified";
 	system(command.c_str());	
 }
 

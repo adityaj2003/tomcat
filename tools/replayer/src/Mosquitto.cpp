@@ -250,28 +250,12 @@ void MosquittoListener::on_message(const string& topic, const string& message) {
    
    
     if(topic.compare("agent/asr/intermediate") == 0 || topic.compare("agent/asr/final") == 0 || topic.compare("agent/dialog") == 0){
-    	std::string msg_timestamp = m["msg"]["timestamp"];
 
-	chrono::time_point current_local = chrono::system_clock::now();//string_to_time_point(timestamp);
- 
-	// Calculate local duration
-	auto d = chrono::duration_cast<chrono::microseconds>(current_local-this->start_local);
-
-	// Add duration to start_study 
-	chrono::time_point<chrono::system_clock> updated_time = this->start_study + chrono::microseconds(d.count());
-
-	// Convert time_point to string
-	time_t t = chrono::system_clock::to_time_t(updated_time);
-	tm t_tm = *localtime(&t);
-	char buff[100];
-	strftime(buff, sizeof buff, "%Y-%m-%dT%H:%M:%S" ,&t_tm);
-
-	// Update timestamp 
-	m["msg"]["timestamp"] = std::string(buff);	
-
-
-    	std::cout << m << std::endl;
+	// Update timestamps
+	m["msg"]["timestamp"] = get_study_timestamp();
+	m["header"]["timestamp"] = get_study_timestamp();	
     }
+    	std::cout << m << std::endl;
     
 }
 
@@ -285,4 +269,22 @@ chrono::time_point<chrono::system_clock> MosquittoListener::string_to_time_point
 	ss >> std::get_time(&tm, "%Y-%m-%dT%H:%M:%S");
 
 	return chrono::system_clock::from_time_t(mktime(&tm)); //+ chrono::microseconds(stoi(microseconds));
+}
+
+string MosquittoListener::get_study_timestamp(){
+ 	chrono::time_point current_local = chrono::system_clock::now();//string_to_time_point(timestamp);
+
+        // Calculate local duration
+        auto d = chrono::duration_cast<chrono::microseconds>(current_local-this->start_local);
+
+        // Add duration to start_study 
+        chrono::time_point<chrono::system_clock> updated_time = this->start_study + chrono::microseconds(d.count());
+
+        // Convert time_point to string
+        time_t t = chrono::system_clock::to_time_t(updated_time);
+        tm t_tm = *localtime(&t);
+        char buff[100];
+        strftime(buff, sizeof buff, "%Y-%m-%dT%H:%M:%S" ,&t_tm);
+
+	return string(buff);
 }

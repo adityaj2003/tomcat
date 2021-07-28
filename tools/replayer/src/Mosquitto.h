@@ -196,7 +196,9 @@ class MosquittoListener : public Mosquitto {
   std::chrono::time_point<std::chrono::system_clock> start_study;
 
   static std::chrono::time_point<std::chrono::system_clock> string_to_time_point(std::string timestamp);
-  protected:
+  std::string get_study_timestamp(); 
+ 
+    protected:
     void on_message(const std::string& topic,
                     const std::string& message) override;
 };
