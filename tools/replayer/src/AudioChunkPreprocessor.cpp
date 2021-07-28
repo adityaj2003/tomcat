@@ -41,6 +41,18 @@ void AudioChunkPreprocessor::get_audio_file_data(){
 			smatch matches;
 			regex_search(filename, matches, rgx);
 			this->participant_ids.push_back(matches[1].str());
+
+			// Push back sample rate
+			FILE *file;
+			file = fopen(filename.c_str(), "rb");
+			char a[4];
+			fseek(file,  24, SEEK_SET); // The sample rate if stored at bytes 24-27
+			for(int i=0;i<4;i++){
+				a[i] = fgetc(file);	
+			}
+			fclose(file);
+			this->sample_rates.push_back(*((int*)a));
+			
 		}
 	}
 }
@@ -55,6 +67,7 @@ void AudioChunkPreprocessor::convert_audio_files(){
 		system(command.c_str());
 	}
 }
+
 
 void AudioChunkPreprocessor::create_audio_chunks(){
 	for (int i=0;i<audio_filenames.size(); i++){
